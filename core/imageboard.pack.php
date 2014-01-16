@@ -981,12 +981,13 @@ class Image {
 			if($tags_ok) {
 				$tag_id_list = join(', ', $tag_id_array);
 
+				$wheresql = ($positive_tag_count === 0 && $negative_tag_count > 0 ? '' : 'WHERE tags.id IN ('.$tag_id_list.')');
 				$subquery = new Querylet('
 					SELECT images.*, SUM('.$tag_search->sql.') AS score
 					FROM images
 					LEFT JOIN image_tags ON image_tags.image_id = images.id
 					JOIN tags ON image_tags.tag_id = tags.id
-					WHERE tags.id IN ('.$tag_id_list.')
+					'.$wheresql.'
 					GROUP BY images.id
 					HAVING score = :score',
 					array_merge(
