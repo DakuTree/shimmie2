@@ -75,13 +75,16 @@ class CustomViewImageTheme extends ViewImageTheme {
 					<td><a href='#' class='qt_a'>-@notchecked</a></td>
 				</tr>
 				<tr>
-					<td><a href='#' class='qt_a'>@best</a></td>
+					<td><a href='#' class='qt_a'>@best vote:up</a></td>
 				</tr>
 				<tr>
 					<td><a href='#' class='qt_a'>long</a></td>
 				</tr>
 				<tr>
 					<td><a href='#' class='qt_a'>short</a></td>
+				</tr>
+				<tr>
+					<td><a href='#' class='qt_a'>incomplete</a></td>
 				</tr>
 			</table>
 		";
