@@ -26,7 +26,7 @@ class Themelet extends BaseThemelet {
 		}
 
 		return "<div class='thumb shm-thumb'>".
-		       "	<a href='ftag://{$fn}' class='shm-thumb-link {$custom_classes}' data-tags='$h_tags' data-post-id='$i_id'>".
+		       "	<a href=\"ftag://{$fn}\" class='{$custom_classes}' data-tags='$h_tags' data-post-id='$i_id'>".
 		       "		<img id='thumb_$i_id' title='$h_tip' alt='$h_tip' height='{$tsize[1]}' width='{$tsize[0]}' src='$h_thumb_link'>".
 		       "	</a>".
 			   "	<div>".
