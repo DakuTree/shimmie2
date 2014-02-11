@@ -86,6 +86,9 @@ class CustomViewImageTheme extends ViewImageTheme {
 				<tr>
 					<td><a href='#' class='qt_a'>incomplete</a></td>
 				</tr>
+				<tr>
+					<td><a href='#' class='qt_a'>util:contained_png</a></td>
+				</tr>
 			</table>
 		";
 

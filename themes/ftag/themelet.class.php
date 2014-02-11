@@ -30,7 +30,7 @@ class Themelet extends BaseThemelet {
 		       "		<img id='thumb_$i_id' title='$h_tip' alt='$h_tip' height='{$tsize[1]}' width='{$tsize[0]}' src='$h_thumb_link'>".
 		       "	</a>".
 			   "	<div>".
-			   "		<a href='$h_view_link' class='thumb shm-thumb shm-thumb-link' data-tags='$h_tags' data-post-id='$i_id'>$fn</a>".
+			   "		<a href='$h_view_link' class='thumb shm-thumb' data-tags='$h_tags' data-post-id='$i_id'>$fn</a>".
 			   "	</div>".
 		       "</div>";
 	}

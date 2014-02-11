@@ -40,5 +40,28 @@ class CustomTagEditTheme extends TagEditTheme {
 	public function get_lock_editor_html(Image $image) {
 		return "";
 	}
+
+	public function get_user_editor_html(Image $image) {
+		global $user;
+		$h_owner = html_escape($image->get_owner()->name);
+		$h_av = $image->get_owner()->get_avatar_html();
+		$h_date = autodate($image->posted);
+		// $h_ip = $user->can("view_ip") ? " (".show_ip($image->owner_ip, "Image posted {$image->posted}").")" : "";
+		$h_ip = "";
+		return "
+			<tr>
+				<th>Uploader</th>
+				<td>
+		".($user->can("edit_image_owner") ? "
+					<span class='view'><a class='username' href='".make_link("user/$h_owner")."'>$h_owner</a>$h_ip, $h_date</span>
+					<input class='edit' type='text' name='tag_edit__owner' value='$h_owner'>
+		" : "
+					<a class='username' href='".make_link("user/$h_owner")."'>$h_owner</a>$h_ip, $h_date
+		")."
+				</td>
+				<td width='80px' rowspan='4'>$h_av</td>
+			</tr>
+		";
+	}
 }
 ?>
