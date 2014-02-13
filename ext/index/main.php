@@ -357,7 +357,7 @@ class Index extends Extension {
 		}
 		else if(preg_match("/^(filename|name)[=|:]([a-zA-Z0-9]*)$/i", $event->term, $matches)) {
 			$filename = strtolower($matches[2]);
-			$event->add_querylet(new Querylet("images.filename LIKE :filename{$this->stpen}", array("filename{$this->stpen}"=>"%$filename%")));
+			$event->add_querylet(new Querylet("images.filename LIKE :filename{$this->stpen}", array("filename{$this->stpen}"=>"$filename%")));
 		}
 		else if(preg_match("/^(source)[=|:](.*)$/i", $event->term, $matches)) {
 			$source = strtolower($matches[2]);
