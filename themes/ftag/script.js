@@ -26,7 +26,7 @@ $(function() {
 		return false;
 	});
 
-	$('.image_info > tbody > tr:eq(2) > td').click(function(e){
+	$('.image_info > tbody > tr:eq(2) > td:eq(0), .image_info > tbody > tr:eq(3) > td:eq(0)').click(function(e){
 		if($(e.target).is('a')){
 			return true;
 		}else if(!$(e.target).is('input')){
