@@ -1,4 +1,6 @@
 $(function() {
+	var current_page = $('#paginator b a').text();
+
 	$('#orderby').change(function(){
 		var value = $("#orderby option:selected")[0].value;
 		$.cookie("shm_order_by", value, {path: '/', expires: 365});
@@ -32,6 +34,19 @@ $(function() {
 		}else if(!$(e.target).is('input')){
 			$(this).find('span').toggle();
 			$(this).find('input').toggle();
+		}
+	});
+
+	$('#paginator a:contains("Random")').hover(function(){
+		if(total_pages >= 5){
+			$(this).attr('href', $(this).attr('href').replace(/(.*?)[0-9]+$/, "$1"));
+
+			var rdm = current_page;
+
+			while(rdm == current_page){
+				rdm = Math.floor(Math.random() * (total_pages - 1 + 1) + 1);
+			}
+			$(this).attr('href', $(this).attr('href').concat(rdm));
 		}
 	});
 });

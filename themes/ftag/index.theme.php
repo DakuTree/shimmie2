@@ -2,7 +2,7 @@
 
 class CustomIndexTheme extends IndexTheme {
 	public function display_page(Page $page, $images) {
-		global $config;
+		global $config, $page;
 
 		if(count($this->search_terms) == 0) {
 			$query = null;
@@ -19,6 +19,8 @@ class CustomIndexTheme extends IndexTheme {
 		if($this->page_number > 1 || count($this->search_terms) > 0) {
 			// $page_title .= " / $page_number";
 		}
+
+		$page->add_html_header("<script type='text/javascript'>total_pages = ".($this->total_pages ?: 1).";</script>");
 
 		$nav = $this->build_navigation($this->page_number, $this->total_pages, $this->search_terms);
 		$page->set_title($page_title);
