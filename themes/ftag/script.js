@@ -49,4 +49,6 @@ $(function() {
 			$(this).attr('href', $(this).attr('href').concat(rdm));
 		}
 	});
+
+	$('div.thumb > a[data-tags*="netorare"]').parent().css('background-color', 'rgba(215, 44, 44, 0.25)')
 });
