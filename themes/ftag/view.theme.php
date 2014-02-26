@@ -12,6 +12,14 @@ class CustomViewImageTheme extends ViewImageTheme {
 		$page->add_html_header("<meta property=\"og:type\" content=\"article\">");
 		$page->add_html_header("<meta property=\"og:image\" content=\"".make_http($image->get_thumb_link())."\">");
 		$page->add_html_header("<meta property=\"og:url\" content=\"".make_http(make_link("post/view/{$image->id}"))."\">");
+		$page->add_html_header("<script type=\"text/javascript\">
+			(function($){
+				$(document).keyup(function(e) {
+					if($(e.target).is('input', 'textarea')){ return; }
+					if (e.keyCode == 46) { $('input[value=\"Delete\"]').click(); }
+				});
+			})(jQuery);
+			</script>", 60);
 		$page->set_heading(html_escape($image->get_tag_list()));
 		$page->add_block(new Block("Navigation", $this->build_navigation($image), "left", 0));
 		$page->add_block(new Block(null, $this->build_info($image, $editor_parts), "main", 20));

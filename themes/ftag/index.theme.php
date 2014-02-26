@@ -70,15 +70,5 @@ class CustomIndexTheme extends IndexTheme {
 
 		return $h_prev.' | '.$h_index.' | '.$h_next.$h_random.'<br>'.$h_search;
 	}
-
-	protected function build_table($images, $query) {
-		$h_query = html_escape($query);
-		$table = "<div class='shm-image-list' data-query='$h_query'>";
-		foreach($images as $image) {
-			$table .= $this->build_thumb_html($image);
-		}
-		$table .= "</div>";
-		return $table;
-	}
 }
 ?>
