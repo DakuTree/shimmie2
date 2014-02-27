@@ -80,19 +80,19 @@ class CustomViewImageTheme extends ViewImageTheme {
 		$html = "
 			<table id='qt_table'>
 				<tr>
-					<td><a href='#' class='qt_a'>-@notchecked</a></td>
+					<td><a href='#' class='qt_a'>-@:@notchecked</a></td>
 				</tr>
 				<tr>
-					<td><a href='#' class='qt_a'>@best vote:up</a></td>
+					<td><a href='#' class='qt_a'>@:@best vote:up</a></td>
 				</tr>
 				<tr>
-					<td><a href='#' class='qt_a'>long</a></td>
+					<td><a href='#' class='qt_a'>@:long</a></td>
 				</tr>
 				<tr>
-					<td><a href='#' class='qt_a'>short</a></td>
+					<td><a href='#' class='qt_a'>@:short</a></td>
 				</tr>
 				<tr>
-					<td><a href='#' class='qt_a'>incomplete</a></td>
+					<td><a href='#' class='qt_a'>@:incomplete</a></td>
 				</tr>
 				<tr>
 					<td><a href='#' class='qt_a'>util:contained_png</a></td>
