@@ -86,6 +86,9 @@ class CustomViewImageTheme extends ViewImageTheme {
 					<td><a href='#' class='qt_a'>@:@best vote:up</a></td>
 				</tr>
 				<tr>
+					<td><a href='#' class='qt_a'>vote:up</a></td>
+				</tr>
+				<tr>
 					<td><a href='#' class='qt_a'>@:long</a></td>
 				</tr>
 				<tr>
@@ -93,9 +96,6 @@ class CustomViewImageTheme extends ViewImageTheme {
 				</tr>
 				<tr>
 					<td><a href='#' class='qt_a'>@:incomplete</a></td>
-				</tr>
-				<tr>
-					<td><a href='#' class='qt_a'>util:contained_png</a></td>
 				</tr>
 			</table>
 		";
