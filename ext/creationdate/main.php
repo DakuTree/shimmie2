@@ -39,6 +39,10 @@ class CreationDate extends Extension {
 							$this->set_cdate($event->image->id, $date->format('Y/m/d'));
 						}
 					}
+				}elseif(preg_match("/^((19|20)\d\d)(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$/", $_POST["tag_edit__cdate"], $matches)) {
+					if($date = DateTime::createFromFormat('Y#m#d', $matches[1]."/".$matches[3]."/".$matches[4])){
+						$this->set_cdate($event->image->id, $date->format('Y/m/d'));
+					}
 				}
 			}else{
 				$this->remove_cdate($event->image->id);
