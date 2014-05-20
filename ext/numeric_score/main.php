@@ -71,6 +71,7 @@ class NumericScore extends Extension {
 				if($char == "up") $score = 1;
 				else if($char == "null") $score = 0;
 				else if($char == "down") $score = -1;
+				else if($char == "doubleup") $score = 2;
 				if(!is_null($score) && $image_id>0) send_event(new NumericScoreSetEvent($image_id, $user, $score));
 				$page->set_mode("redirect");
 				$page->set_redirect(make_link("post/view/$image_id"));

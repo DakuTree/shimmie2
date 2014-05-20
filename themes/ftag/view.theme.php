@@ -109,6 +109,13 @@ class CustomViewImageTheme extends ViewImageTheme {
 			<p><form action='".make_link("numeric_score_vote")."' method='POST'>
 			".$user->get_auth_html()."
 			<input type='hidden' name='image_id' value='$i_image_id'>
+			<input type='hidden' name='vote' value='doubleup'>
+			<input type='submit' value='Double Vote Up'>
+			</form>
+
+			<form action='".make_link("numeric_score_vote")."' method='POST'>
+			".$user->get_auth_html()."
+			<input type='hidden' name='image_id' value='$i_image_id'>
 			<input type='hidden' name='vote' value='up'>
 			<input type='submit' value='Vote Up'>
 			</form>
