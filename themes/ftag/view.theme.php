@@ -89,6 +89,9 @@ class CustomViewImageTheme extends ViewImageTheme {
 					<td><a href='#' class='qt_a'>vote:up</a></td>
 				</tr>
 				<tr>
+					<td><a href='#' class='qt_a'>vote:doubleup</a></td>
+				</tr>
+				<tr>
 					<td><a href='#' class='qt_a'>@:long</a></td>
 				</tr>
 				<tr>

@@ -250,9 +250,10 @@ class NumericScore extends Extension {
 	public function onTagTermParse(TagTermParseEvent $event) {
 		$matches = array();
 
-		if(preg_match("/^vote[=|:](up|down|remove)$/", $event->term, $matches)) {
+		if(preg_match("/^vote[=|:]((double)?up|down|remove)$/", $event->term, $matches)) {
 			global $user;
 			$score = ($matches[1] == "up" ? 1 : ($matches[1] == "down" ? -1 : 0));
+			if($matches[2] && $matches[1] == "doubleup"){ $score = 2; }
 			if(!$user->is_anonymous()) {
 				send_event(new NumericScoreSetEvent($event->id, $user, $score));
 			}
