@@ -300,6 +300,19 @@ class Pools extends Extension {
 		}
 	}
 
+
+	public function onImageDeletion(ImageDeletionEvent $event) {
+		global $database;
+
+		//Due to foreign keys, the rows in pool_images no longer exist for us to get poolIDs from them.
+		//Meaning that there is no way to know what pools need their count updated, or if they even had a pool in the first place.
+
+		//To avoid having incorrect pool counts we need to recheck every pool count whenever an image is deleted.
+		$database->execute("
+				UPDATE pools
+				SET posts = (SELECT COUNT(*) FROM pool_images WHERE pools.id = pool_images.pool_id)");
+	}
+
 	public function onSearchTermParse(SearchTermParseEvent $event) {
 		$matches = array();
 		if(preg_match("/^pool[=|:]([0-9]+|any|none)$/i", $event->term, $matches)) {
