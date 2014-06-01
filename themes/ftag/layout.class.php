@@ -86,7 +86,7 @@ $header_html
 			Images &copy; their respective owners,
 			<a href="http://code.shishnet.org/shimmie2/">Shimmie</a> &copy;
 			<a href="http://www.shishnet.org/">Shish</a> &amp;
-			<a href="https://github.com/shish/shimmie2/contributors">The Team</a>
+			<a href="https://github.com/shish/shimmie2/graphs/contributors">The Team</a>
 			2007-2012,
 			based on the Danbooru concept.
 			$debug
@@ -97,4 +97,3 @@ $header_html
 EOD;
 	}
 }
-?>

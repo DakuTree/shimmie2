@@ -13,6 +13,10 @@ class CustomPixelFileHandlerTheme extends PixelFileHandlerTheme {
 				foreach ($exif as $key => $section) {
 					foreach ($section as $name => $val) {
 						if($key == "IFD0") {
+							// Cheap fix for array'd values in EXIF-data
+							if (is_array($val)) {
+								$val = implode(',', $val);
+							}
 							$head .= html_escape("$name: $val")."<br>\n";
 						}
 					}
