@@ -103,6 +103,9 @@ class Upgrade extends Extension {
 				$database->execute("ALTER TABLE images ALTER COLUMN filename SET DATA TYPE VARCHAR(255)");
 			}
 
+			log_info("upgrade", "Creating index for filename");
+			$database->execute("CREATE INDEX images_filename_idx ON images(filename)");
+
 			log_info("upgrade", "Database at version 13");
 			$config->set_bool("in_upgrade", false);
 		}
