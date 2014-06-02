@@ -92,13 +92,13 @@ class CustomViewImageTheme extends ViewImageTheme {
 					<td><a href='#' class='qt_a'>vote:doubleup</a></td>
 				</tr>
 				<tr>
-					<td><a href='#' class='qt_a'>@:long</a></td>
-				</tr>
-				<tr>
-					<td><a href='#' class='qt_a'>@:short</a></td>
+					<td><a href='#' class='qt_a'>@:long</a></td><td><a href='#' class='qt_a'>@:short</a></td>
 				</tr>
 				<tr>
 					<td><a href='#' class='qt_a'>@:incomplete</a></td>
+				</tr>
+				<tr>
+					<td><a href='#' class='qt_a'>pool:lastcreated</a></td>
 				</tr>
 			</table>
 		";

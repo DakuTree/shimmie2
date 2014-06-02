@@ -178,6 +178,7 @@ ARTICLE TABLE {
 
 #qt_table td {
 	background-color: rgb(204, 204, 204);
+	display: inline;
 }
 
 .image_info {
