@@ -21,8 +21,8 @@ class Themelet extends BaseThemelet {
 
 		$custom_classes = "";
 		if(class_exists("Relationships")){
-			if(property_exists('Image', 'parent_id') && $image->parent_id !== NULL){	$custom_classes .= "shm-thumb-has_parent ";	}
-			if(property_exists('Image', 'has_children') && $image->has_children == TRUE){ $custom_classes .= "shm-thumb-has_child "; }
+			if($image->parent_id !== NULL){	$custom_classes .= "shm-thumb-has_parent ";	}
+			if($image->has_children == TRUE){ $custom_classes .= "shm-thumb-has_child "; }
 		}
 
 		return "<div class='thumb shm-thumb'>".
