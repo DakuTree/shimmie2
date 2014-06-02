@@ -937,7 +937,11 @@ class Pools extends Extension {
 		global $database, $config;
 
 		if(!$this->check_post($poolID, $imageID)) {
-			if($config->get_bool("poolsAutoIncrementOrder") && $imageOrder === 0){
+
+			if($imageOrder === 0 && preg_match("/(Vol|Ch)\.([0-9]+)/", Image::by_id($imageID)->filename, $matches)) {
+				$imageOrder = $matches[2];
+			}
+			elseif($config->get_bool("poolsAutoIncrementOrder") && $imageOrder === 0){
 				$imageOrder = $database->get_one("
 						SELECT CASE WHEN image_order IS NOT NULL THEN MAX(image_order) + 1 ELSE 0 END
 						FROM pool_images
