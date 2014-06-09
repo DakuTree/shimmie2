@@ -72,7 +72,7 @@ class TagListTheme extends Themelet {
 		}
 
 		asort($tag_categories_html);
-		$main_html = $tag_categories_html[' '];
+		if(isset($tag_categories_html[' '])) $main_html = $tag_categories_html[' ']; else $main_html = null;
 		unset($tag_categories_html[' ']);
 
 		foreach(array_keys($tag_categories_html) as $category) {
@@ -306,4 +306,3 @@ class TagListTheme extends Themelet {
 		return make_link("post/list/$u_tag/1");
 	}
 }
-
