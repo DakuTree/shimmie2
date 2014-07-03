@@ -72,6 +72,7 @@ class NumericScore extends Extension {
 				else if($char == "null") $score = 0;
 				else if($char == "down") $score = -1;
 				else if($char == "doubleup") $score = 2;
+				else if($char == "tripleup") $score = 3;
 				if(!is_null($score) && $image_id>0) send_event(new NumericScoreSetEvent($image_id, $user, $score));
 				$page->set_mode("redirect");
 				$page->set_redirect(make_link("post/view/$image_id"));
@@ -250,10 +251,13 @@ class NumericScore extends Extension {
 	public function onTagTermParse(TagTermParseEvent $event) {
 		$matches = array();
 
-		if(preg_match("/^vote[=|:]((double)?up|down|remove)$/", $event->term, $matches)) {
+		if(preg_match("/^vote[=|:]((double|triple)?up|down|remove)$/", $event->term, $matches)) {
 			global $user;
 			$score = ($matches[1] == "up" ? 1 : ($matches[1] == "down" ? -1 : 0));
-			if(isset($matches[2]) && $matches[1] == "doubleup"){ $score = 2; }
+			if(isset($matches[2])){
+				if($matches[1] == "doubleup"){     $score = 2; }
+				elseif($matches[1] == "tripleup"){ $score = 3; }
+			}
 			if(!$user->is_anonymous()) {
 				send_event(new NumericScoreSetEvent($event->id, $user, $score));
 			}

@@ -83,13 +83,13 @@ class CustomViewImageTheme extends ViewImageTheme {
 					<td><a href='#' class='qt_a'>-@:@notchecked</a></td>
 				</tr>
 				<tr>
-					<td><a href='#' class='qt_a'>@:@best</a></td>
-				</tr>
-				<tr>
 					<td><a href='#' class='qt_a'>vote:up</a></td>
 				</tr>
 				<tr>
 					<td><a href='#' class='qt_a'>vote:doubleup</a></td>
+				</tr>
+				<tr>
+					<td><a href='#' class='qt_a'>vote:tripleup</a></td>
 				</tr>
 				<tr>
 					<td><a href='#' class='qt_a'>@:long</a></td><td><a href='#' class='qt_a'>@:short</a></td>
@@ -109,7 +109,14 @@ class CustomViewImageTheme extends ViewImageTheme {
 		$html .= "<div id='scoreblock'>
 			Current Score: $i_score
 
-			<p><form action='".make_link("numeric_score_vote")."' method='POST'>
+			<form action='".make_link("numeric_score_vote")."' method='POST'>
+			".$user->get_auth_html()."
+			<input type='hidden' name='image_id' value='$i_image_id'>
+			<input type='hidden' name='vote' value='tripleup'>
+			<input type='submit' value='Triple Vote Up'>
+			</form>
+		
+			<form action='".make_link("numeric_score_vote")."' method='POST'>
 			".$user->get_auth_html()."
 			<input type='hidden' name='image_id' value='$i_image_id'>
 			<input type='hidden' name='vote' value='doubleup'>
