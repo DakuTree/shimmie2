@@ -1,4 +1,3 @@
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                  things common to all pages                    *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -147,6 +146,14 @@ ARTICLE TABLE {
 	border: 1px solid #CCC;
 	background: #DDD;
 	padding: 8px;
+}
+
+/* Fix vertical alignment of checkboxes */
+input[type=checkbox] {
+	vertical-align: middle;
+	position: relative;
+	bottom: 1px;
+	margin-top: 4px;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
