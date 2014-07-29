@@ -25,6 +25,19 @@ class FTAG extends Extension {
 		}
 	}
 
+	public function onPageRequest(PageRequestEvent $event) {
+		global $user, $page;
+
+		if(!$user->is_anonymous()){
+			$page->add_html_header(
+'<script type="text/javascript">
+	$(document).ready(function() {
+		$(".thumb img").attr("src", function(){ return $(this).attr("data-base64"); });
+	});
+</script>');
+		}
+	}
+
 	public function get_priority() {return 5;}
 }
 
