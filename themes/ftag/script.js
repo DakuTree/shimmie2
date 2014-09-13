@@ -50,5 +50,6 @@ $(function() {
 		}
 	});
 
-	$('div.thumb > a[data-tags*="netorare"]').parent().css('background-color', 'rgba(215, 44, 44, 0.25)')
+	$('div.thumb > a[data-tags*="netorare"]').parent().css('background-color', 'rgba(215, 44, 44, 0.25)');
+	$('div.thumb > a[data-tags*="@:@notchecked"] img').css('background-color', 'rgba(0, 0, 0, 0.25)');
 });
