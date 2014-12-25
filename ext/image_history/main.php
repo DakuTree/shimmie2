@@ -57,7 +57,9 @@ class ImageHistory extends Extension {
 	public function onPageRequest(PageRequestEvent $event) {
 		global $page, $user;
 
-		if($event->page_matches("image_history/revert")) {}
+		if($event->page_matches("image_history/revert")) {
+			if(isset($_GET['image_id'])){}
+		}
 		else if($event->page_matches("image_history/all")) {}
 		else if($event->page_matches("image_history") && $event->count_args() == 0) {
 			if(isset($_GET['image_id'])){
@@ -102,6 +104,8 @@ class ImageHistory extends Extension {
 			custom3 (optional) - removed tags
 		*/
 		$old_tags = $image->get_tag_array();
+		$new_taglist = Tag::implode($new_tags);
+		$old_taglist = Tag::implode($old_tags);
 		//CHECK: Does the new_tags array need sorted?
 
 		// if($new_tags == $old_tags) return; #CHECK: Do we want any blank tag changes to be recorded?
@@ -116,7 +120,7 @@ class ImageHistory extends Extension {
 			$database->execute("
 				INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
 				VALUES (?, ?, ?, ?)",
-				array($history_id, $this->events, 'tags', Tag::implode($old_tags)));
+				array($history_id, $this->events, 'tags', $old_taglist));
 		}
 
 		$diff = array_merge(array("removed" => array_diff($old_tags, $new_tags)), array("added" => array_diff($new_tags, $old_tags)));
@@ -126,12 +130,14 @@ class ImageHistory extends Extension {
 		$database->execute("
 			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2, custom3)
 			VALUES (?, ?, ?, ?, ?, ?)",
-			array($history_id, $this->events, 'tags', Tag::implode($new_tags), Tag::implode($diff['added']), Tag::implode($diff['removed'])));
+			array($history_id, $this->events, 'tags', $new_taglist, Tag::implode($diff['added']), Tag::implode($diff['removed'])));
+
+		if($config->get_bool("ext_imagehistory_logdb_tags")) log_debug("image_history", "TagHistory: [{$old_taglist}] -> [{$new_taglist}]", false, array("image_id" => $image->id));
 
 		return;
 	}
 
-	//UTIL
+
 	public function get_history_id($image_id, $create=FALSE) {
 		if(is_null($this->history_id) || $create){
 			//Multiple things can be set/changed at once on post pages
