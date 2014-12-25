@@ -111,7 +111,7 @@ class ImageHistory extends Extension {
 		//CHECK: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
 		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
-		if($entires == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
+		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
 			$this->events++;
 			$database->execute("
 				INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
