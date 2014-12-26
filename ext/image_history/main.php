@@ -3,11 +3,12 @@
  * Name: Image History
  * Author: Daku <admin@codeanimu.net>
  * Description: Keeps a record of all changes made to an image.
+ *              Tag & Source history are implemented by default (toggleable)
  *              Extension support is planned.
  */
 
 class ImageHistory extends Extension {
-	public $history_id = NULL;
+	public $history_id;
 	public $events = 0;
 
 	public function get_priority() {return 40;}
@@ -21,14 +22,20 @@ class ImageHistory extends Extension {
 
 		$config->set_default_int("ext_imagehistory_version", -1);
 		if($config->get_int("ext_imagehistory_version") < 1) {
+			//TODO: Ask if want to import from tag_history/source_history extension
 			#try {
 				$database->create_table("ext_imagehistory", "
 					id SCORE_AIPK,
 					image_id INTEGER NOT NULL,
 					user_id INTEGER NOT NULL,
 					user_ip SCORE_INET NOT NULL,
-					timestamp TIMESTAMP NOT NULL
+					timestamp TIMESTAMP NOT NULL,
+					FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
+					FOREIGN KEY (user_id)  REFERENCES users(id)  ON DELETE CASCADE
 					");
+				$database->execute("CREATE INDEX ext_imagehistory_image_id ON ext_imagehistory(image_id)", array());
+				$database->execute("CREATE INDEX ext_imagehistory_user_id  ON ext_imagehistory(user_id)", array());
+				$database->execute("CREATE INDEX ext_imagehistory_user_ip  ON ext_imagehistory(user_ip)", array());
 
 				//TODO: Possibly diff name than type?
 				//The "custom" columns are not required to be used, but can be if the extension requires it.
@@ -40,8 +47,12 @@ class ImageHistory extends Extension {
 					custom2 TEXT,
 					custom3 TEXT,
 					custom4 TEXT,
-					custom5 TEXT
+					custom5 TEXT,
+					FOREIGN KEY (history_id) REFERENCES ext_imagehistory(id) ON DELETE CASCADE
 					");
+				$database->execute("CREATE UNIQUE INDEX ext_imagehistory_events_hideid ON ext_imagehistory_events(history_id, event_id)", array());
+				$database->execute("CREATE INDEX ext_imagehistory_events_history_id    ON ext_imagehistory_events(history_id)", array());
+				$database->execute("CREATE INDEX ext_imagehistory_events_type          ON ext_imagehistory_events(type)", array());
 			#} catch (Exception $e) {
 				//revert
 				//throw error
