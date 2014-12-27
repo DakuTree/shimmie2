@@ -105,8 +105,13 @@ class ImageHistory extends Extension {
 		if($config->get_bool("ext_imagehistory_tags")) $this->add_tag_history($event->image, $event->tags);
 	}
 
+	public function onSourceSet(SourceSetEvent $event) {
+		global $config;
+		if($config->get_bool("ext_imagehistory_source")) $this->add_source_history($event->image, $event->source);
+	}
+
 	private function add_tag_history(Image $image, /*array*/ $new_tags) {
-		global $config, $database, $user;
+		global $config, $database;
 
 		/*
 			Tag History uses up to 3 of the custom columns.
@@ -148,6 +153,41 @@ class ImageHistory extends Extension {
 		return;
 	}
 
+	private function add_source_history(Image $image, /*string*/ $new_source) {
+		global $config, $database;
+
+		/*
+			Source history uses 1 of the custom columns.
+			custom1 (required) - new source
+		*/
+		$old_source = $image->source;
+
+		// if($new_source == $old_source) return; #CHECK: Do we want any blank source changes to be recorded?
+
+		$history_id = $this->get_history_id($image->id);
+
+		//CHECK: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
+		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
+		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
+		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
+			$this->events++;
+			$database->execute("
+				INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
+				VALUES (?, ?, ?, ?)",
+				array($history_id, $this->events, 'source', $old_source));
+		}
+
+		//add a history event
+		$this->events++;
+		$database->execute("
+			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
+			VALUES (?, ?, ?, ?)",
+			array($history_id, $this->events, 'source', $new_source));
+
+		if($config->get_bool("ext_imagehistory_logdb_source")) log_debug("image_history", "SourceHistory: [{$old_source}] -> [{$new_source}]", false, array("image_id" => $image->id));
+
+		return;
+	}
 
 	public function get_history_id($image_id, $create=FALSE) {
 		if(is_null($this->history_id) || $create){
