@@ -42,7 +42,7 @@ class ImageHistory extends Extension {
 				$database->create_table("ext_imagehistory_events", "
 					history_id INTEGER NOT NULL,
 					event_id INTEGER NOT NULL,
-					type VARCHAR(255),
+					type VARCHAR(255) NOT NULL,
 					custom1 TEXT,
 					custom2 TEXT,
 					custom3 TEXT,
