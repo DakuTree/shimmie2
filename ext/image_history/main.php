@@ -66,7 +66,7 @@ class ImageHistory extends Extension {
 	// }
 
 	public function onPageRequest(PageRequestEvent $event) {
-		global $page, $user;
+		global $page;
 
 		if($event->page_matches("image_history/revert")) {
 			if(isset($_GET['image_id'])){}
@@ -75,6 +75,8 @@ class ImageHistory extends Extension {
 		else if($event->page_matches("image_history") && $event->count_args() == 0) {
 			if(isset($_GET['image_id'])){
 				//theme show image history
+				$image_id = int_escape($_GET['image_id']);
+				$this->theme->display_history_page($page, $image_id, $this->get_source_history_from_id($image_id));
 			}
 		}
 	}
@@ -92,10 +94,13 @@ class ImageHistory extends Extension {
 	public function onSetupBuilding(SetupBuildingEvent $event) {
 		$sb = new SetupBlock("Image History");
 
+		//TODO: Fix formatting
 		$sb->add_bool_option("ext_imagehistory_tags", "Enable tag history: ");
+		$sb->add_bool_option("ext_imagehistory_source", "Enable source history: ");
+
+		//FIXME: Check if log_db ext is enabled
 		$sb->add_bool_option("ext_imagehistory_logdb_tags", "Enable tag history (log_db): ");
-		// $sb->add_bool_option("ext_imagehistory_source", "Enable source history: ");
-		// $sb->add_bool_option("ext_imagehistory_logdb_source", "Enable source history (log_db): ");
+		$sb->add_bool_option("ext_imagehistory_logdb_source", "Enable source history (log_db): ");
 
 		$event->panel->add_block($sb);
 	}
@@ -120,11 +125,11 @@ class ImageHistory extends Extension {
 			custom3 (optional) - removed tags
 		*/
 		$old_tags = $image->get_tag_array();
+
+		if($new_tags == $old_tags) return; #CHECK: Do we want any blank tag changes to be recorded?
+
 		$new_taglist = Tag::implode($new_tags);
 		$old_taglist = Tag::implode($old_tags);
-		//CHECK: Does the new_tags array need sorted?
-
-		// if($new_tags == $old_tags) return; #CHECK: Do we want any blank tag changes to be recorded?
 
 		$history_id = $this->get_history_id($image->id);
 
@@ -162,12 +167,13 @@ class ImageHistory extends Extension {
 		*/
 		$old_source = $image->source;
 
-		// if($new_source == $old_source) return; #CHECK: Do we want any blank source changes to be recorded?
+		if($new_source == $old_source) return; #CHECK: Do we want any blank source changes to be recorded?
 
 		$history_id = $this->get_history_id($image->id);
 
-		//CHECK: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
+		//FIXME: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
+		//       This also sets as current user, rather than uploader
 		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
 			$this->events++;
@@ -206,7 +212,20 @@ class ImageHistory extends Extension {
 			VALUES (?, ?, ?, current_timestamp)",
 			array($image_id, $user->id, $_SERVER['REMOTE_ADDR']));
 
-		$this->history_id = $database->get_last_insert_id();
+		$this->history_id = $database->get_last_insert_id(NULL);
+	}
+
+	public function get_source_history_from_id(/*int*/ $image_id) {
+		global $database;
+		$row = $database->get_all("
+				SELECT eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
+				FROM ext_imagehistory eih
+				JOIN users ON eih.user_id = users.id
+				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
+				WHERE image_id = ?
+				ORDER BY eih.id DESC, eihe.event_id DESC",
+				array($image_id));
+		return ($row ? $row : array());
 	}
 }
 
