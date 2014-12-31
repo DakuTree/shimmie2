@@ -4,7 +4,11 @@
  * Author: Daku <admin@codeanimu.net>
  * Description: Keeps a record of all changes made to an image.
  *              Tag & Source history are implemented by default (toggleable)
- *              Extension support is planned.
+ *
+ *              TODO: Extension support.
+ *                    Revert/undo tags.
+ *                    Reset history.
+ *                    Fix history.
  */
 
 class ImageHistory extends Extension {
@@ -76,7 +80,7 @@ class ImageHistory extends Extension {
 			if(isset($_GET['image_id'])){
 				//theme show image history
 				$image_id = int_escape($_GET['image_id']);
-				$this->theme->display_history_page($page, $image_id, $this->get_source_history_from_id($image_id));
+				$this->theme->display_history_page($page, $image_id, $this->get_history_from_id($image_id));
 			}
 		}
 	}
@@ -120,13 +124,13 @@ class ImageHistory extends Extension {
 
 		/*
 			Tag History uses up to 3 of the custom columns.
-			custom1 (required) - new taglist
+			custom1 (required) - unchanged tags
 			custom2 (optional) - added tags
 			custom3 (optional) - removed tags
 		*/
 		$old_tags = $image->get_tag_array();
 
-		if($new_tags == $old_tags) return; #CHECK: Do we want any blank tag changes to be recorded?
+		// if($new_tags == $old_tags) return; #CHECK: Do we want any blank tag changes to be recorded?
 
 		$new_taglist = Tag::implode($new_tags);
 		$old_taglist = Tag::implode($old_tags);
@@ -144,14 +148,14 @@ class ImageHistory extends Extension {
 				array($history_id, $this->events, 'tags', $old_taglist));
 		}
 
-		$diff = array_merge(array("removed" => array_diff($old_tags, $new_tags)), array("added" => array_diff($new_tags, $old_tags)));
+		$diff = array_merge(array("unchanged" => array_intersect($new_tags, $old_tags)), array("removed" => array_diff($old_tags, $new_tags)), array("added" => array_diff($new_tags, $old_tags)));
 
 		//add a history event
 		$this->events++;
 		$database->execute("
 			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2, custom3)
 			VALUES (?, ?, ?, ?, ?, ?)",
-			array($history_id, $this->events, 'tags', $new_taglist, Tag::implode($diff['added']), Tag::implode($diff['removed'])));
+			array($history_id, $this->events, 'tags', Tag::implode($diff['unchanged']), Tag::implode($diff['added'])||NULL, Tag::implode($diff['removed'])||NULL));
 
 		if($config->get_bool("ext_imagehistory_logdb_tags")) log_debug("image_history", "TagHistory: [{$old_taglist}] -> [{$new_taglist}]", false, array("image_id" => $image->id));
 
@@ -164,10 +168,11 @@ class ImageHistory extends Extension {
 		/*
 			Source history uses 1 of the custom columns.
 			custom1 (required) - new source
+			custom2 (optional) - old source
 		*/
 		$old_source = $image->source;
 
-		if($new_source == $old_source) return; #CHECK: Do we want any blank source changes to be recorded?
+		// if($new_source == $old_source) return; #CHECK: Do we want any blank source changes to be recorded?
 
 		$history_id = $this->get_history_id($image->id);
 
@@ -186,9 +191,9 @@ class ImageHistory extends Extension {
 		//add a history event
 		$this->events++;
 		$database->execute("
-			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
-			VALUES (?, ?, ?, ?)",
-			array($history_id, $this->events, 'source', $new_source));
+			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2)
+			VALUES (?, ?, ?, ?, ?)",
+			array($history_id, $this->events, 'source', $new_source, $old_source));
 
 		if($config->get_bool("ext_imagehistory_logdb_source")) log_debug("image_history", "SourceHistory: [{$old_source}] -> [{$new_source}]", false, array("image_id" => $image->id));
 
@@ -215,7 +220,7 @@ class ImageHistory extends Extension {
 		$this->history_id = $database->get_last_insert_id(NULL);
 	}
 
-	public function get_source_history_from_id(/*int*/ $image_id) {
+	public function get_history_from_id(/*int*/ $image_id) {
 		global $database;
 		$row = $database->get_all("
 				SELECT eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
