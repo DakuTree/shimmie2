@@ -155,7 +155,7 @@ class ImageHistory extends Extension {
 		$database->execute("
 			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2, custom3)
 			VALUES (?, ?, ?, ?, ?, ?)",
-			array($history_id, $this->events, 'tags', Tag::implode($diff['unchanged']), Tag::implode($diff['added'])||NULL, Tag::implode($diff['removed'])||NULL));
+			array($history_id, $this->events, 'tags', Tag::implode($diff['unchanged']), (Tag::implode($diff['added']) ?: NULL), (Tag::implode($diff['removed']) ?: NULL)));
 
 		if($config->get_bool("ext_imagehistory_logdb_tags")) log_debug("image_history", "TagHistory: [{$old_taglist}] -> [{$new_taglist}]", false, array("image_id" => $image->id));
 
