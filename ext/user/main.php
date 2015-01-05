@@ -348,7 +348,11 @@ class UserPage extends Extension {
 	 * @param UserBlockBuildingEvent $event
 	 */
 	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
+		global $user;
 		$event->add_link("My Profile", make_link("user"));
+		if($user->can("edit_user_class")) {
+			$event->add_link("User List", make_link("user_admin/list"), 98);
+		}
 		$event->add_link("Log Out", make_link("user_admin/logout"), 99);
 	}
 
@@ -494,27 +498,20 @@ class UserPage extends Extension {
 	private function user_can_edit_user(User $a, User $b) {
 		if($a->is_anonymous()) {
 			$this->theme->display_error(401, "Error", "You aren't logged in");
+			return false;
 		}
-		if($a->name == $b->name) {
+
+		if(
+			($a->name == $b->name) ||
+			($b->can("protected") && $a->class->name == "admin") ||
+			(!$b->can("protected") && $a->can("edit_user_info"))
+		) {
 			return true;
 		}
-		if($b->can("protected")) {
-			if($a->class->name == "admin") {
-				return true;
-			}
-			else {
-				$this->theme->display_error(401, "Error", "You need to be an admin to change other people's details");
-			}
-		}
 		else {
-			if($a->can("edit_user_info")) {
-				return true;
-			}
-			else {
-				$this->theme->display_error(401, "Error", "You need to be an admin to change other people's details");
-			}
+			$this->theme->display_error(401, "Error", "You need to be an admin to change other people's details");
+			return false;
 		}
-		return false;
 	}
 
 	private function redirect_to_user(User $duser) {
