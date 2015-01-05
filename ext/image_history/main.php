@@ -72,27 +72,21 @@ class ImageHistory extends Extension {
 	public function onPageRequest(PageRequestEvent $event) {
 		global $page;
 
+		//TODO: Find a better way to do this.
+
 		if($event->page_matches("image_history/revert")) {
-			if(isset($_GET['image_id'])){}
+			if(isset($_POST['image_id'])){}
 		}
 		else if($event->page_matches("image_history/all")) {}
-		else if($event->page_matches("image_history") && $event->count_args() == 0) {
-			if(isset($_GET['image_id'])){
-				//theme show image history
-				$image_id = int_escape($_GET['image_id']);
+		else if($event->page_matches("image_history")) {
+			if($image_id = int_escape($event->get_arg(0))){
 				$this->theme->display_history_page($page, $image_id, $this->get_history_from_id($image_id));
 			}
 		}
 	}
 
 	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
-		//IDEA: Why isn't it possible to do something like $event->add_submit(ACTION, SUBMITVALUE, (optional)METHOD)
-		$event->add_part("
-			<form action='".make_link("image_history")."' method='GET'>
-				<input type='hidden' name='image_id' value='{$event->image->id}'>
-				<input type='submit' value='View Image History'>
-			</form>
-		", 20);
+		$event->add_part($this->theme->get_history_link_html($event->image->id), 20);
 	}
 
 	public function onSetupBuilding(SetupBuildingEvent $event) {
