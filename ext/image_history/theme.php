@@ -1,6 +1,15 @@
 <?php
 
 class ImageHistoryTheme extends Themelet {
+	public function get_history_link_html(/*int*/ $image_id) {
+
+		$html = make_form(make_link("image_history/{$image_id}"))."
+				<input type='submit' value='View Image History'>
+			</form>
+		";
+		return $html;
+	}
+
 	public function display_history_page(Page $page, /*int*/ $image_id, /*array*/ $history) {
 		global $user;
 
