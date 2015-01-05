@@ -24,11 +24,11 @@ class ImageHistoryTheme extends Themelet {
 			<table class='zebra' id='imagehistory'>
 				<thead>
 					<th width='5%'>Post</th>
-					<th width='15%'>Date</th>
+					<th width='75px'>Date</th>
 					<th width='10%'>User</th>
 					".($user->can("view_ip") ? "<th width='10%'>IP Address</th>" : "")."
 					<th>Changes</th>
-					<th width='7%'></th> <!-- Actions -->
+					<th width='10%'></th> <!-- Actions -->
 				</thead>
 				<tbody>";
 
@@ -44,7 +44,7 @@ class ImageHistoryTheme extends Themelet {
 							<a href='".make_link("post/view/{$image_id}")."'>{$image_id}.{$events[0]['history_id']}</a>
 						</td>
 						<td>
-							<time datetime='".date("Y-m-d H:i:s", strtotime($events[0]['timestamp']))."'></time>
+							<time datetime='".date("Y-m-d H:i:s", strtotime($events[0]['timestamp']))."' class='notimeago'>".date("Y-m-d H:i:s", strtotime($events[0]['timestamp']))."</time>
 						</td>
 						<td>
 							{$uname}
@@ -59,7 +59,7 @@ class ImageHistoryTheme extends Themelet {
 			foreach($events as $event) {
 				//TODO: This will need change when extension support is implemented
 				if($event['type'] == 'tags'){
-					$tag_list   = array_merge($tag_list,   Tag::explode($event['custom1']));
+					if(!empty($event['custom1'])) $tag_list   = array_merge($tag_list,   Tag::explode($event['custom1']));
 					if(!empty($event['custom2'])) $tag_list_n = array_merge($tag_list_n, Tag::explode($event['custom2']));
 					if(!empty($event['custom3'])) $tag_list_r = array_merge($tag_list_r, Tag::explode($event['custom3']));
 				}elseif($event['type'] == 'source'){
@@ -74,8 +74,8 @@ class ImageHistoryTheme extends Themelet {
 					//stuff
 				}
 			}
-			foreach($tag_list_n as $tag){ $event_html .= "<ins>+<a href='".make_link("post/list/$tag/1")."'>{$tag}</a></ins>";  }
-			foreach($tag_list_r as $tag){ $event_html .= "<del>-<a href='".make_link("post/list/$tag/1")."'>{$tag}</a></del>";  }
+			foreach($tag_list_n as $tag){ $event_html .= "<ins><a href='".make_link("post/list/$tag/1")."'>{$tag}</a></ins>";  }
+			foreach($tag_list_r as $tag){ $event_html .= "<del><a href='".make_link("post/list/$tag/1")."'>{$tag}</a></del>";  }
 			foreach($tag_list as $tag){   $event_html .= "<span><a href='".make_link("post/list/$tag/1")."'>{$tag}</a></span> "; }
 
 			$event_html .= "
