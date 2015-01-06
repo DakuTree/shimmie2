@@ -96,10 +96,23 @@ class TagSetEvent extends Event {
 	/** @var \Image */
 	public $image;
 	var $tags;
+	var $metatags;
 
 	public function __construct(Image $image, $tags) {
-		$this->image = $image;
-		$this->tags = Tag::explode($tags);
+		$this->image    = $image;
+
+		//metatags need to be split from tags otherwise they will show when onTagSet is called
+		$this->tags     = array();
+		$this->metatags = array();
+		foreach(array_unique(Tag::explode($tags)) as $tag) {
+			$ttpe = new TagTermParseEvent($tag, $image->id);
+			send_event($ttpe);
+			if(!$ttpe->is_metatag()) {
+				array_push($this->tags, $tag);
+			}else{
+				array_push($this->metatags, $tag);
+			}
+		}
 	}
 }
 

@@ -1,0 +1,22 @@
+#imagehistory { table-layout: fixed; }
+
+#imagehistory ins, #imagehistory ins:hover, #imagehistory del {
+	text-decoration: none;
+}
+#imagehistory ins, #imagehistory ins > a {
+	color: green;
+}
+#imagehistory ins:before {
+	content: '+';
+}
+#imagehistory del, #imagehistory del > a {
+	color: red;
+}
+#imagehistory del:before {
+	content: '-';
+}
+#imagehistory del > a, #imagehistory del > a:hover {
+	text-decoration: line-through;
+}
+
+#imagehistory ins, #imagehistory del { margin-right: 0.5em; }
