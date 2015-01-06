@@ -1,0 +1,174 @@
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                  things common to all pages                    *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+BODY {
+	background: url(bg.png);
+	font-family: "Arial", sans-serif;
+	font-size: 14px;
+	margin: 0px;
+}
+HEADER {
+	border-bottom: 1px solid #B89F7C;
+	margin-top: 0px;
+	margin-bottom: 16px;
+	padding: 8px;
+	background: #FCD9A9;
+	text-align: center;
+}
+H1 {
+	font-size: 5em;
+	margin: 0px;
+	padding: 0px;
+}
+H1 A {
+	color: black;
+}
+H3 {
+	text-align: center;
+	margin: 0px;
+}
+THEAD {
+	font-weight: bold;
+}
+TD {
+	vertical-align: top;
+	text-align: center;
+}
+CODE {
+	background: #DEDEDE;
+	font-size: 0.8em;
+}
+#subtitle {
+	width: 256px;
+	font-size: 0.75em;
+	margin: auto;
+	margin-top: -16px;
+	text-align: center;
+	border: 1px solid black;
+	border-top: none;
+	background: #DDD;
+}
+
+TABLE.zebra {border-spacing: 0px; border: 1px solid #B89F7C; }
+TABLE.zebra TD, TABLE.zebra TH {vertical-align: middle; padding: 4px;}
+TABLE.zebra THEAD TD, TABLE.zebra THEAD TH {border-bottom: 2px solid #B89F7C;}
+TABLE.zebra TFOOT TD, TABLE.zebra TFOOT TH {border-top: 2px solid #B89F7C;}
+TABLE.zebra TD {border-top: 1px solid #B89F7C;}
+TABLE.zebra TR:nth-child(odd) {background: #FCD9A9;}
+TABLE.zebra TR:nth-child(even) {background: #DABC92;}
+
+FOOTER {
+	clear: both;
+	padding: 8px;
+	font-size: 0.7em;
+	text-align: center;
+	border-top: 1px solid #B89F7C;
+	background: #FCD9A9;
+}
+
+A         {color: #665844; text-decoration: none; font-weight: bold;}
+A:hover   {color: #665844; text-decoration: underline;}
+A:visited {color: #665844; text-decoration: none}
+A:active  {color: #665844; text-decoration: underline;}
+
+BLOCKQUOTE {
+	border: 1px solid black;
+	padding: 8px;
+	background: #DDD;
+}
+
+UL {
+	text-align: left;
+}
+
+SECTION>H3, SECTION>.blockbody, .comment, .setupblock {margin: 8px; padding: 8px; border: 1px solid #B89F7C;}
+SECTION>.blockbody, .comment, .setupblock {background: #FCD9A9;}
+SECTION>H3 {background: #DABC92;}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*             the navigation bar, and all its blocks             *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+NAV {
+	width: 250px;
+	float: left;
+	text-align: center;
+	margin-left: 16px;
+}
+NAV .blockbody {
+	font-size: 0.85em;
+	text-align: center;
+}
+NAV TABLE {
+	width: 150px;
+}
+NAV TD {
+	vertical-align: middle;
+}
+NAV INPUT {
+	width: 100%;
+	padding: 0px;
+}
+NAV SELECT {
+	width: 100%;
+	padding: 0px;
+}
+
+.more:after {
+	content: " >>>";
+}
+
+.tag_count:before {
+	content: "(";
+}
+.tag_count:after {
+	content: ")";
+}
+
+#paginator .blockbody {
+	background: none;
+	border: none;
+	box-shadow: none;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                 the main part of each page                     *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+ARTICLE {
+	margin-left: 276px;
+	margin-right: 16px;
+	text-align: center;
+	height: 1%;
+}
+ARTICLE TABLE {
+	width: 90%;
+	margin: auto;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                     specific page types                        *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+#pagelist {
+	margin-top: 32px;
+}
+
+.thumb {
+	width: 226px;
+	display: inline-block;
+	zoom: 1; /* ie6 */
+	*display: inline; /* ie6 */
+	text-align: center;
+	margin-bottom: 8px;
+}
+.thumb IMG {
+	border: 1px solid #B89F7C;
+	background: #FCD9A9;
+	padding: 8px;
+}
