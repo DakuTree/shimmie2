@@ -10,8 +10,8 @@ class TagEditTheme extends Themelet {
 		$html = "
 		".make_form(make_link("tag_edit/replace"))."
 			<table class='form'>
-				<tr><th>Search</th><td><input type='text' name='search'></tr>
-				<tr><th>Replace</th><td><input type='text' name='replace'></td></tr>
+				<tr><th>Search</th><td><input type='text' name='search' class='autocomplete_tags' autocomplete='off'></tr>
+				<tr><th>Replace</th><td><input type='text' name='replace' class='autocomplete_tags' autocomplete='off'></td></tr>
 				<tr><td colspan='2'><input type='submit' value='Replace'></td></tr>
 			</table>
 		</form>
@@ -49,7 +49,7 @@ class TagEditTheme extends Themelet {
 				<td>
 		".($user->can("edit_image_tag") ? "
 					<span class='view'>$h_tag_links</span>
-					<input class='edit' type='text' name='tag_edit__tags' value='$h_tags' class='autocomplete_tags' id='tag_editor'>
+					<input class='edit' type='text' name='tag_edit__tags' value='$h_tags' class='autocomplete_tags' id='tag_editor' autocomplete='off'>
 		" : "
 					$h_tag_links
 		")."
