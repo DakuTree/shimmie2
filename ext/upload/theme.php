@@ -336,7 +336,7 @@ class UploadTheme extends Themelet {
 			<div class='mini_upload'>
 			".make_form(make_link("upload"), "POST", $multipart=True)."
 				$upload_list
-				<input name='tags' type='text' placeholder='tagme' class='autocomplete_tags' required='required' autocomplete='off'>
+				<input name='tags' type='text' placeholder='tagme' class='autocomplete_tags' autocomplete='off'>
 				<input type='submit' value='Post'>
 			</form>
 			<small>(Max file size is $max_kb)</small>
