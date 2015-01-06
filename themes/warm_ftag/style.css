@@ -172,3 +172,38 @@ ARTICLE TABLE {
 	background: #FCD9A9;
 	padding: 8px;
 }
+
+
+/* Fix vertical alignment of checkboxes */
+input[type=checkbox] {
+	vertical-align: middle;
+	position: relative;
+	bottom: 1px;
+	margin-top: 4px;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                            FLAT                                *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+.image_info {
+	margin: 0 10px 0 10px;
+	width: auto !important;
+}
+
+body > header > h1 {
+	max-height: 34px;
+	overflow-y: auto;
+}
+
+/* Make header more "flat" */
+header > h1 {
+	margin: 0;
+	padding: 4px;
+}
+
+/* Make left nav bar aligned with article */
+#Navigationleft > h3 { margin-top: 0; }
+
+/* In cases where the last thumbnail row doesn't have the same as the rest, make sure it's centered */
+.shm-image-list { text-align: center; }
