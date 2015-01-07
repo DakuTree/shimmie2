@@ -5,4 +5,3 @@ class CustomNumericScoreTheme extends NumericScoreTheme {
 		//Hide Voter Box
 	}
 }
-?>
