@@ -3,11 +3,13 @@
 class CustomUserPageTheme extends UserPageTheme {
 	public function display_user_block(Page $page, User $user, $parts) {
 		$h_name = html_escape($user->name);
-		$html = " | ";
+		$html = "<div id='linkblock'>";
 		foreach($parts as $part) {
-			$html .= "<a href='{$part["link"]}'>{$part["name"]}</a> | ";
+			$html .= "<a href='{$part["link"]}'>{$part["name"]}</a> - ";
 		}
-		$page->add_block(new Block("Logged in as $h_name", $html, "head", 90));
+		$html = substr($html, 0, -3);
+		$html .= "</div>";
+		$page->add_block(new Block(null, $html, "head", 90));
 	}
 
 	public function display_login_block(Page $page) {

@@ -12,13 +12,12 @@ BODY {
 HEADER {
 	border-bottom: 1px solid #B89F7C;
 	margin-top: 0px;
-	margin-bottom: 16px;
+	margin-bottom: 24px;
 	padding: 8px;
 	background: #FCD9A9;
 	text-align: center;
 }
 H1 {
-	font-size: 5em;
 	margin: 0px;
 	padding: 0px;
 }
@@ -183,12 +182,61 @@ input[type=checkbox] {
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*                            FLAT                                *
+*                            FTAG                                *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/* CHECKME: This seems like it will break */
+#e1cba2e3e492991680cb9339f2e20b5amain > .blockbody, .image_info {
+	height: 150px;
+}
+
+#qt_table {
+	text-align: center;
+	width: 152px;
+	float: left;
+	height: 150px;
+}
+
+#qt_table td {
+	font-size: 13px;
+	font-weight:bold;
+	width: 99% !important;
+}
+
+#qt_table td {
+	background-color: #DABC92;
+	display: inline;
+}
+
 .image_info {
-	margin: 0 10px 0 10px;
+	margin-left: 10px;
 	width: auto !important;
+}
+
+.image_info tr:nth-child(1) > td:nth-child(3) {
+	width: 0px;
+}
+
+#scoreblock {
+	float: right;
+}
+
+#slider {
+	display: none;
+}
+
+#slideblock {
+	background-color: #DABC92;
+	margin-top: 10px;
+}
+
+#Tagsleft > .blockbody {
+	padding: 6px 0 0 0;
+}
+
+body > header {
+	max-height: 34px;
+	padding-top: 0;
 }
 
 body > header > h1 {
@@ -203,7 +251,32 @@ header > h1 {
 }
 
 /* Make left nav bar aligned with article */
-#Navigationleft > h3 { margin-top: 0; }
+#Navigationleft > h3 {
+	margin-top: 0;
+}
 
 /* In cases where the last thumbnail row doesn't have the same as the rest, make sure it's centered */
-.shm-image-list { text-align: center; }
+.shm-image-list {
+	text-align: center;
+}
+
+#linkblock {
+	border: 1px solid #B89F7C;
+	background: #FCD9A9;
+	padding: 1px 0 1px 0;
+}
+
+#image-list, #paginator { background: #FCD9A9; }
+#image-list > h3 {
+	margin-left: 0;
+	margin-right: 0;
+}
+.shm-thumb > div:nth-child(2) {
+	margin-top: -5px;
+	padding-top: 2px;
+}
+
+.shm-thumb > div:nth-child(2) > a {
+	margin-bottom: 2px;
+
+}
