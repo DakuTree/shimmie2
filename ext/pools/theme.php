@@ -130,7 +130,7 @@ class PoolsTheme extends Themelet {
 	 * @param string $heading
 	 * @param bool $check_all
 	 */
-	private function display_top(/*array*/ $pools, /*string*/ $heading, $check_all=false) {
+	protected function display_top(/*array*/ $pools, /*string*/ $heading, $check_all=false) {
 		global $page, $user;
 
 		$page->set_title($heading);
