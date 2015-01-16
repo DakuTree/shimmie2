@@ -77,11 +77,20 @@ class ImageHistory extends Extension {
 		if($event->page_matches("image_history/revert")) {
 			if(isset($_POST['image_id'])){}
 		}
-		else if($event->page_matches("image_history/all")) {}
+		else if($event->page_matches("image_history/all")) {
+			$this->theme->display_history_page($page, $this->get_entire_history());
+		}
 		else if($event->page_matches("image_history")) {
 			if($image_id = int_escape($event->get_arg(0))){
-				$this->theme->display_history_page($page, $image_id, $this->get_history_from_id($image_id));
+				$this->theme->display_history_page($page, $this->get_history_from_id($image_id));
 			}
+		}
+	}
+
+	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
+		global $user;
+		if($user->can("bulk_edit_image_tag")) {
+			$event->add_link("Image Changes", make_link("image_history/all/1"), 54);
 		}
 	}
 
@@ -217,13 +226,24 @@ class ImageHistory extends Extension {
 	public function get_history_from_id(/*int*/ $image_id) {
 		global $database;
 		$row = $database->get_all("
-				SELECT eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
+				SELECT ? AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
 				FROM ext_imagehistory eih
 				JOIN users ON eih.user_id = users.id
 				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
 				WHERE image_id = ?
 				ORDER BY eih.id DESC, eihe.event_id DESC",
-				array($image_id));
+				array($image_id, $image_id));
+		return ($row ? $row : array());
+	}
+
+	protected function get_entire_history() {
+		global $database;
+		$row = $database->get_all("
+				SELECT eih.image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
+				FROM ext_imagehistory eih
+				JOIN users ON eih.user_id = users.id
+				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
+				ORDER BY eih.id DESC, eihe.event_id DESC");
 		return ($row ? $row : array());
 	}
 }
