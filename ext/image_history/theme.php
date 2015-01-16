@@ -10,7 +10,7 @@ class ImageHistoryTheme extends Themelet {
 		return $html;
 	}
 
-	public function display_history_page(Page $page, /*int*/ $image_id, /*array*/ $history) {
+	public function display_history_page(Page $page, /*array*/ $history) {
 		global $user;
 
 		$new_history = array();
@@ -39,9 +39,9 @@ class ImageHistoryTheme extends Themelet {
 
 			//TODO: Escape all this stuff for security
 			$event_html = "
-					<tr id='post-{$image_id}-{$events[0]['history_id']}'>
+					<tr id='post-{$events[0]['image_id']}-{$events[0]['history_id']}'>
 						<td>
-							<a href='".make_link("post/view/{$image_id}")."'>{$image_id}.{$events[0]['history_id']}</a>
+							<a href='".make_link("post/view/{$events[0]['image_id']}")."'>{$events[0]['image_id']}.{$events[0]['history_id']}</a>
 						</td>
 						<td>
 							<time datetime='".date("Y-m-d H:i:s", strtotime($events[0]['timestamp']))."' class='notimeago'>".date("Y-m-d H:i:s", strtotime($events[0]['timestamp']))."</time>
@@ -90,8 +90,8 @@ class ImageHistoryTheme extends Themelet {
 		$history_html .= "
 				</table>";
 
-		$page->set_title('Image History: '.$image_id);
-		$page->set_heading('Image History: '.$image_id);
+		$page->set_title('Image History');
+		$page->set_heading('Image History');
 		$page->add_block(new NavBlock());
 		$page->add_block(new Block("Image History", $history_html, "main", 10));
 	}
