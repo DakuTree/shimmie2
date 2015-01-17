@@ -32,7 +32,7 @@ class CustomPixelFileHandlerTheme extends PixelFileHandlerTheme {
 		$fn = str_replace("'", "&apos;", $fn);
 
 		preg_match("/^(.*?)((Vol|Ch)\.([0-9]+))?$/", $fn, $matches);
-		$page->add_block(new Block("<a href=\"ftag://$fn\">$fn</a><a href=\"".make_link("/pool/new")."?title=".html_escape($matches[1])."\" style=\"float: right;l\">¬</a>", $html, "main", 10));
+		$page->add_block(new Block("<a href=\"ftag://$fn\" style=\"font-size: 1.1em;\">$fn</a><a href=\"".make_link("/pool/new")."?title=".html_escape($matches[1])."\" style=\"float: right;l\">¬</a>", $html, "main", 10));
 	}
 }
 ?>

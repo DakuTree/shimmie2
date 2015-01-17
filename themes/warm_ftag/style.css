@@ -12,7 +12,7 @@ BODY {
 HEADER {
 	border-bottom: 1px solid #B89F7C;
 	margin-top: 0px;
-	margin-bottom: 24px;
+	margin-bottom: 36px;
 	padding: 8px;
 	background: #FCD9A9;
 	text-align: center;
@@ -197,13 +197,14 @@ input[type=checkbox] {
 	height: 150px;
 }
 
+#qt_table tr {
+	display: inline-block;
+	margin-bottom: 6px;
+}
 #qt_table td {
-	font-size: 13px;
+	font-size: 14px;
 	font-weight:bold;
 	width: 99% !important;
-}
-
-#qt_table td {
 	background-color: #DABC92;
 	display: inline;
 }
