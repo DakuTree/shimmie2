@@ -19,4 +19,4 @@
 	text-decoration: line-through;
 }
 
-#imagehistory ins, #imagehistory del { margin-right: 0.5em; }
+#imagehistory ins, #imagehistory del { margin-right: 0.5em; display: inline-block;}
