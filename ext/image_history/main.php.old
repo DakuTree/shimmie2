@@ -1,0 +1,162 @@
+<?php
+/*
+ * Name: Image History
+ * Author: Daku <admin@codeanimu.net>
+ * Description: Keeps a record of all changes made to an image.
+ *              Extension support is planned.
+ */
+
+class ImageHistory extends Extension {
+	public $history_id = NULL;
+	public $events = 0;
+
+	public function get_priority() {return 40;}
+
+	public function onInitExt(InitExtEvent $event) {
+		global $config, $database;
+		$config->set_default_bool("ext_imagehistory_tags",          true);
+		$config->set_default_bool("ext_imagehistory_source",        true);
+		$config->set_default_bool("ext_imagehistory_logdb_tags",   false);
+		$config->set_default_bool("ext_imagehistory_logdb_source", false);
+
+		$config->set_default_int("ext_imagehistory_version", -1);
+		if($config->get_int("ext_imagehistory_version") < 1) {
+			#try {
+				$database->create_table("ext_imagehistory", "
+					id SCORE_AIPK,
+					image_id INTEGER NOT NULL,
+					user_id INTEGER NOT NULL,
+					user_ip SCORE_INET NOT NULL,
+					timestamp TIMESTAMP NOT NULL
+					");
+
+				//TODO: Possibly diff name than type?
+				//The "custom" columns are not required to be used, but can be if the extension requires it.
+				$database->create_table("ext_imagehistory_events", "
+					history_id INTEGER NOT NULL,
+					event_id INTEGER NOT NULL,
+					type VARCHAR(255),
+					custom1 TEXT,
+					custom2 TEXT,
+					custom3 TEXT,
+					custom4 TEXT,
+					custom5 TEXT
+					");
+			#} catch {
+				//revert
+			#}
+			$config->set_int("ext_imagehistory_version", 1);
+		}
+	}
+
+	// public function onAdminBuilding(AdminBuildingEvent $event) {
+		// $this->theme->display_admin_block();
+	// }
+
+	public function onPageRequest(PageRequestEvent $event) {
+		global $page, $user;
+
+		if($event->page_matches("image_history/revert")) {}
+		else if($event->page_matches("image_history/all")) {}
+		else if($event->page_matches("image_history") && $event->count_args() == 0) {
+			if(isset($_GET['image_id'])){
+				//theme show image history
+			}
+		}
+	}
+	
+	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
+		//IDEA: Why isn't it possible to do something like $event->add_submit(ACTION, INPUTVALUE, (optional)METHOD)
+		$event->add_part("
+			<form action='".make_link("image_history")."' method='GET'>
+				<input type='hidden' name='image_id' value='{$event->image->id}'>
+				<input type='submit' value='View Image History'>
+			</form>
+		", 20);
+	}
+
+	public function onSetupBuilding(SetupBuildingEvent $event) {
+		$sb = new SetupBlock("Image History");
+
+		$sb->add_bool_option("ext_imagehistory_tags", "Enable tag history: ");
+		$sb->add_bool_option("ext_imagehistory_logdb_tags", "Enable tag history (log_db): ");
+		// $sb->add_bool_option("ext_imagehistory_source", "Enable source history: ");
+
+		$event->panel->add_block($sb);
+	}
+
+	public function onTagSet(TagSetEvent $event) {
+		global $config;
+		if($config->get_bool("ext_imagehistory_tags")) $this->add_tag_history($event->image, $event->tags);
+	}
+
+	// public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
+		// global $user;
+		// if($user->can("bulk_edit_image_tag")) {
+			// $event->add_link("Tag Changes", make_link("tag_history/all/1"));
+		// }
+	// }
+
+	private function add_tag_history(Image $image, /*array*/ $new_tags) {
+		global $config, $database, $user;
+
+		/*
+			Tag History uses up to 3 of the custom columns.
+			custom1 (required) - new taglist
+			custom2 (optional) - added tags
+			custom3 (optional) - removed tags
+		*/
+		$old_tags = $image->get_tag_array();
+		//CHECK: Does the new_tags array need sorted?
+
+		// if($new_tags == $old_tags) return; #CHECK: Do we want any blank tag changes to be recorded?
+
+		$history_id = $this->get_history_id($image->id);
+
+		//CHECK: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
+		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
+		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
+		if($entires == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
+			$this->events++;
+			$database->execute("
+				INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
+				VALUES (?, ?, ?, ?)",
+				array($history_id, $this->events, 'tags', Tag::implode($old_tags)));
+		}
+
+		$diff = array_merge(array("removed" => array_diff($old_tags, $new_tags)), array("added" => array_diff($new_tags, $old_tags)));
+
+		//add a history event
+		$this->events++;
+		$database->execute("
+			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2, custom3)
+			VALUES (?, ?, ?, ?, ?, ?)",
+			array($history_id, $this->events, 'tags', Tag::implode($new_tags), Tag::implode($diff['added']), Tag::implode($diff['removed'])));
+
+		return;
+	}
+
+	//UTIL
+	public function get_history_id($image_id, $create=FALSE) {
+		global $database, $user;
+
+		if(is_null($this->history_id) || $create){
+			//Multiple things can be set/changed at once on post pages
+			//To make things lessy messy on the image history page, these are grouped by a history id.
+			$this->generate_history_id($image_id);
+		}
+		return $this->history_id;
+	}
+
+	private function generate_history_id($image_id) {
+		global $database, $user;
+
+		$database->execute("
+			INSERT INTO ext_imagehistory (image_id, user_id, user_ip, timestamp)
+			VALUES (?, ?, ?, current_timestamp)",
+			array($image_id, $user->id, $_SERVER['REMOTE_ADDR']));
+
+		$this->history_id = $database->get_last_insert_id();
+	}
+}
+
