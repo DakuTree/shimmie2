@@ -69,7 +69,7 @@ class TagList extends Extension {
 		global $config, $page;
 		if($config->get_int('tag_list_length') > 0) {
 			if(!empty($event->search_terms)) {
-				$this->add_refine_block($page, $event->search_terms);
+				// $this->add_refine_block($page, $event->search_terms);
 			}
 			else {
 				$this->add_popular_block($page);
@@ -494,6 +494,7 @@ class TagList extends Extension {
 			foreach($wild_tags as $tag) {
 				$tag = str_replace("*", "%", $tag);
 				$tag = str_replace("?", "_", $tag);
+				$tag = ($tag[0] == '-' ? substr($tag, 1) : $tag);
 
 				// Metatags are do not act like a normal tag and should be ignored
 				$stpe = new SearchTermParseEvent($tag, $wild_tags);
