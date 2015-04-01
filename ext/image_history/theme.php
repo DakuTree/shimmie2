@@ -3,6 +3,7 @@
 class ImageHistoryTheme extends Themelet {
 	public function get_history_link_html(/*int*/ $image_id) {
 
+		//FIXME: Does this really have to be POST? It feels really off..
 		$html = make_form(make_link("image_history/{$image_id}"))."
 				<input type='submit' value='View Image History'>
 			</form>
@@ -10,11 +11,11 @@ class ImageHistoryTheme extends Themelet {
 		return $html;
 	}
 
-	public function display_history_page(Page $page, /*array*/ $history) {
+	public function display_history_page(Page $page, /*array*/ $history, $page_number, /*CHANGME?*/ $page_url) {
 		global $user;
 
 		$new_history = array();
-		foreach($history as $value) { $new_history[$value['history_id']][] = $value; } //Isn't there a better way of doing this?
+		foreach($history['data'] as $value) { $new_history[$value['history_id']][] = $value; } //Isn't there a better way of doing this?
 
 		$n = 0;
 
@@ -94,6 +95,8 @@ class ImageHistoryTheme extends Themelet {
 		$page->set_heading('Image History');
 		$page->add_block(new NavBlock());
 		$page->add_block(new Block("Image History", $history_html, "main", 10));
+
+		$this->display_paginator($page, $page_url, null, $page_number, $history['total_pages']);
 	}
 
 }
