@@ -234,10 +234,9 @@ class ImageHistory extends Extension {
 
 		$row = $database->get_all("
 				SELECT :id AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
-				FROM (SELECT * FROM ext_imagehistory ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
+				FROM (SELECT * FROM ext_imagehistory WHERE image_id = :id ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
 				JOIN users ON eih.user_id = users.id
 				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
-				WHERE image_id = :id
 				ORDER BY eih.id DESC, eihe.event_id DESC",
 				array("id" => $image_id, "limit"=>$limit, "offset"=>$offset));
 
@@ -254,7 +253,7 @@ class ImageHistory extends Extension {
 
 		$row = $database->get_all("
 				SELECT eih.image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
-				FROM ext_imagehistory eih
+				FROM (SELECT * FROM ext_imagehistory ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
 				JOIN users ON eih.user_id = users.id
 				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
 				ORDER BY eih.id DESC, eihe.event_id DESC",
