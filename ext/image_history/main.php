@@ -110,6 +110,8 @@ class ImageHistory extends Extension {
 		$sb->add_bool_option("ext_imagehistory_logdb_tags", "Enable tag history (log_db): ");
 		$sb->add_bool_option("ext_imagehistory_logdb_source", "Enable source history (log_db): ");
 
+		$sb->add_int_option("ext_imagehistory_historyperpage", "Total history elements per page: ");
+
 		$event->panel->add_block($sb);
 	}
 
