@@ -9,6 +9,8 @@
  *                    Revert/undo tags.
  *                    Reset history.
  *                    Fix history.
+ *                    Make sure image always has a starting tag history.
+ *                    Import from tag/source history.
  */
 
 class ImageHistory extends Extension {
@@ -89,7 +91,7 @@ class ImageHistory extends Extension {
 	}
 
 	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
-		$event->add_link("Image Changes", make_link("image_history/all/1"), 54);
+		$event->add_link("Image Changes", make_link("image_history/all"), 54);
 	}
 
 	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
@@ -99,14 +101,21 @@ class ImageHistory extends Extension {
 	public function onSetupBuilding(SetupBuildingEvent $event) {
 		$sb = new SetupBlock("Image History");
 
-		//TODO: Fix formatting
+		//CHECK: Is there a neater way to do breaks? This feels ugly.
 		$sb->add_bool_option("ext_imagehistory_tags", "Enable tag history: ");
+		$sb->add_label("<br />");
 		$sb->add_bool_option("ext_imagehistory_source", "Enable source history: ");
+		$sb->add_label("<br />");
 
-		//FIXME: Check if log_db ext is enabled
-		$sb->add_bool_option("ext_imagehistory_logdb_tags", "Enable tag history (log_db): ");
-		$sb->add_bool_option("ext_imagehistory_logdb_source", "Enable source history (log_db): ");
+		if(class_exists('LogDatabase')) {
+			$sb->add_label("<br />");
+			$sb->add_bool_option("ext_imagehistory_logdb_tags", "Enable tag history (log_db): ");
+			$sb->add_label("<br />");
+			$sb->add_bool_option("ext_imagehistory_logdb_source", "Enable source history (log_db): ");
+			$sb->add_label("<br />");
+		}
 
+		$sb->add_label("<br />");
 		$sb->add_int_option("ext_imagehistory_historyperpage", "Total history elements per page: ");
 
 		$event->panel->add_block($sb);
