@@ -79,7 +79,6 @@ class ImageHistoryTheme extends Themelet {
 						//source didn't change
 						if(!empty($old_source)) array_push($tag_list, "source:".$old_source);
 					}
-					//stuff
 				}
 			}
 			foreach($tag_list_n as $tag){ $event_html .= "<ins><a href='".make_link("post/list/$tag/1")."'>{$tag}</a></ins>";  }

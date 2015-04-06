@@ -89,10 +89,7 @@ class ImageHistory extends Extension {
 	}
 
 	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
-		global $user;
-		if($user->can("bulk_edit_image_tag")) {
-			$event->add_link("Image Changes", make_link("image_history/all/1"), 54);
-		}
+		$event->add_link("Image Changes", make_link("image_history/all/1"), 54);
 	}
 
 	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
