@@ -65,12 +65,17 @@ class ImageHistoryTheme extends Themelet {
 					if(!empty($event['custom3'])) $tag_list_r = array_merge($tag_list_r, Tag::explode($event['custom3']));
 				}elseif($event['type'] == 'source'){
 					//TODO: This feels like a bad way of doing this...
-					if(!empty($event['custom2']) && ($event['custom1'] !== $event['custom2'])){
+					list($old_source, $new_source) = array(html_escape($event['custom1']), html_escape($event['custom2']));
+					if(!empty($new_source) && ($old_source !== $new_source)){
 						//source has been updated and old source isn't empty
-						array_push($tag_list_n, "source:".$event['custom1']);
-						array_push($tag_list_r, "source:".$event['custom2']);
+						if(!empty($old_source)) array_push($tag_list_n, "source:".$old_source);
+						array_push($tag_list_r, "source:".$new_source);
+					}elseif(empty($new_source)) {
+						//source has been added and old source was empty
+						if(!empty($old_source)) array_push($tag_list_n, "source:".$old_source);
 					}else{
-						array_push($tag_list, "source:".$event['custom1']);
+						//source didn't change
+						if(!empty($old_source)) array_push($tag_list, "source:".$old_source);
 					}
 					//stuff
 				}
