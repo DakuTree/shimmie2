@@ -176,7 +176,7 @@ class ImageHistory extends Extension {
 			custom1 (required) - new source
 			custom2 (optional) - old source
 		*/
-		$old_source = $image->source;
+		$old_source = $image->source ?: '';
 
 		// if($new_source == $old_source) return; #CHECK: Do we want any blank source changes to be recorded?
 
