@@ -3,8 +3,7 @@
 class ImageHistoryTheme extends Themelet {
 	public function get_history_link_html(/*int*/ $image_id) {
 
-		//FIXME: Does this really have to be POST? It feels really off..
-		$html = make_form(make_link("image_history/{$image_id}"))."
+		$html = make_form("image_history/{$image_id}", "GET")."
 				<input type='submit' value='View Image History'>
 			</form>
 		";
@@ -16,8 +15,6 @@ class ImageHistoryTheme extends Themelet {
 
 		$new_history = array();
 		foreach($history['data'] as $value) { $new_history[$value['history_id']][] = $value; } //Isn't there a better way of doing this?
-
-		$n = 0;
 
 		//For now this is using the same layout Danbooru does for it's tag history (http://danbooru.donmai.us/post_versions)
 		//If somebody can improve on this, be my guest.
