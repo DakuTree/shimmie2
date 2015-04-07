@@ -31,6 +31,7 @@ class ImageHistory extends Extension {
 		if($config->get_int("ext_imagehistory_version") < 1) {
 			//TODO: Ask if want to import from tag_history/source_history extension
 			#try {
+				#begin transaction
 				$database->create_table("ext_imagehistory", "
 					id SCORE_AIPK,
 					image_id INTEGER NOT NULL,
@@ -60,6 +61,7 @@ class ImageHistory extends Extension {
 				$database->execute("CREATE UNIQUE INDEX ext_imagehistory_events_hideid ON ext_imagehistory_events(history_id, event_id)", array());
 				$database->execute("CREATE INDEX ext_imagehistory_events_history_id    ON ext_imagehistory_events(history_id)", array());
 				$database->execute("CREATE INDEX ext_imagehistory_events_type          ON ext_imagehistory_events(type)", array());
+				#commit
 			#} catch (Exception $e) {
 				//revert
 				//throw error
@@ -215,7 +217,7 @@ class ImageHistory extends Extension {
 	public function get_history_id($image_id, $create=FALSE) {
 		if(is_null($this->history_id) || $create){
 			//Multiple things can be set/changed at once on post pages
-			//To make things lessy messy on the image history page, these are grouped by a history id.
+			//To make things less messy on the image history page, these are grouped by a history id.
 			$this->generate_history_id($image_id);
 		}
 		return $this->history_id;
