@@ -40,7 +40,6 @@ class ImageHistoryTheme extends Themelet {
 			$uname = "<a href='".make_link("user/".url_escape($events[0]['name']))."'>".html_escape($events[0]['name'])."</a>";
 			$uip   = ($user->can("view_ip") ? "<td>".$events[0]['user_ip']."</td>" : "");
 
-			//TODO: Escape all this stuff for security
 			$event_html = "
 					<tr id='post-{$events[0]['image_id']}-{$events[0]['history_id']}'>
 						<td>
@@ -66,7 +65,6 @@ class ImageHistoryTheme extends Themelet {
 					if(!empty($event['custom2'])) $tag_list_n = array_merge($tag_list_n, Tag::explode($event['custom2']));
 					if(!empty($event['custom3'])) $tag_list_r = array_merge($tag_list_r, Tag::explode($event['custom3']));
 				}elseif($event['type'] == 'source'){
-					//TODO: This feels like a bad way of doing this...
 					list($old_source, $new_source) = array(html_escape($event['custom1']), html_escape($event['custom2']));
 					if(!empty($new_source) && ($old_source !== $new_source)){
 						//source has been updated and old source isn't empty
