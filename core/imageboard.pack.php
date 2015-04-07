@@ -515,11 +515,6 @@ class Image {
 		global $database;
 
 		assert(is_array($tags));
-
-		$tags = array_map(array('Tag', 'sanitise'), $tags);
-		$tags = Tag::resolve_aliases($tags);
-
-		assert(is_array($tags));
 		assert(count($tags) > 0);
 		$new_tags = implode(" ", $tags);
 

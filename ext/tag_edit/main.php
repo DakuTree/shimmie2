@@ -104,7 +104,14 @@ class TagSetEvent extends Event {
 		//metatags need to be split from tags otherwise they will show when onTagSet is called
 		$this->tags     = array();
 		$this->metatags = array();
-		foreach(array_unique(Tag::explode($tags)) as $tag) {
+
+		$tag_array = array_unique(Tag::explode($tags));
+		$tag_array = array_map(array('Tag', 'sanitise'), $tag_array);
+
+		//aliases need to be resolved here or the non-aliased tag will show when onTagSet is called
+		$tag_array = Tag::resolve_aliases($tag_array);
+
+		foreach($tag_array as $tag) {
 			$ttpe = new TagTermParseEvent($tag, $image->id);
 			send_event($ttpe);
 			if(!$ttpe->is_metatag()) {

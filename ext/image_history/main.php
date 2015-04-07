@@ -9,6 +9,8 @@
  *                    Revert/undo tags.
  *                    Reset history.
  *                    Fix history.
+ *                    Make sure image always has a starting tag history.
+ *                    Import from tag/source history.
  */
 
 class ImageHistory extends Extension {
@@ -23,11 +25,13 @@ class ImageHistory extends Extension {
 		$config->set_default_bool("ext_imagehistory_source",        true);
 		$config->set_default_bool("ext_imagehistory_logdb_tags",   false);
 		$config->set_default_bool("ext_imagehistory_logdb_source", false);
+		$config->set_default_int( "ext_imagehistory_historyperpage",  50);
 
 		$config->set_default_int("ext_imagehistory_version", -1);
 		if($config->get_int("ext_imagehistory_version") < 1) {
 			//TODO: Ask if want to import from tag_history/source_history extension
 			#try {
+				#begin transaction
 				$database->create_table("ext_imagehistory", "
 					id SCORE_AIPK,
 					image_id INTEGER NOT NULL,
@@ -57,6 +61,7 @@ class ImageHistory extends Extension {
 				$database->execute("CREATE UNIQUE INDEX ext_imagehistory_events_hideid ON ext_imagehistory_events(history_id, event_id)", array());
 				$database->execute("CREATE INDEX ext_imagehistory_events_history_id    ON ext_imagehistory_events(history_id)", array());
 				$database->execute("CREATE INDEX ext_imagehistory_events_type          ON ext_imagehistory_events(type)", array());
+				#commit
 			#} catch (Exception $e) {
 				//revert
 				//throw error
@@ -71,27 +76,24 @@ class ImageHistory extends Extension {
 
 	public function onPageRequest(PageRequestEvent $event) {
 		global $page;
-
 		//TODO: Find a better way to do this.
-
 		if($event->page_matches("image_history/revert")) {
 			if(isset($_POST['image_id'])){}
 		}
 		else if($event->page_matches("image_history/all")) {
-			$this->theme->display_history_page($page, $this->get_entire_history());
+			$pageN = int_escape($event->get_arg(0)) ?: 1;
+			$this->theme->display_history_page($page, $this->get_entire_history($pageN), $pageN, "image_history/all");
 		}
 		else if($event->page_matches("image_history")) {
 			if($image_id = int_escape($event->get_arg(0))){
-				$this->theme->display_history_page($page, $this->get_history_from_id($image_id));
+				$pageN = int_escape($event->get_arg(1)) ?: 1;
+				$this->theme->display_history_page($page, $this->get_history_from_id($image_id, $pageN), $pageN, "image_history/{$image_id}");
 			}
 		}
 	}
 
 	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
-		global $user;
-		if($user->can("bulk_edit_image_tag")) {
-			$event->add_link("Image Changes", make_link("image_history/all/1"), 54);
-		}
+		$event->add_link("Image Changes", make_link("image_history/all"), 54);
 	}
 
 	public function onImageAdminBlockBuilding(ImageAdminBlockBuildingEvent $event) {
@@ -101,13 +103,22 @@ class ImageHistory extends Extension {
 	public function onSetupBuilding(SetupBuildingEvent $event) {
 		$sb = new SetupBlock("Image History");
 
-		//TODO: Fix formatting
+		//CHECK: Is there a neater way to do breaks? This feels ugly.
 		$sb->add_bool_option("ext_imagehistory_tags", "Enable tag history: ");
+		$sb->add_label("<br />");
 		$sb->add_bool_option("ext_imagehistory_source", "Enable source history: ");
+		$sb->add_label("<br />");
 
-		//FIXME: Check if log_db ext is enabled
-		$sb->add_bool_option("ext_imagehistory_logdb_tags", "Enable tag history (log_db): ");
-		$sb->add_bool_option("ext_imagehistory_logdb_source", "Enable source history (log_db): ");
+		if(class_exists('LogDatabase')) {
+			$sb->add_label("<br />");
+			$sb->add_bool_option("ext_imagehistory_logdb_tags", "Enable tag history (log_db): ");
+			$sb->add_label("<br />");
+			$sb->add_bool_option("ext_imagehistory_logdb_source", "Enable source history (log_db): ");
+			$sb->add_label("<br />");
+		}
+
+		$sb->add_label("<br />");
+		$sb->add_int_option("ext_imagehistory_historyperpage", "Total history elements per page: ");
 
 		$event->panel->add_block($sb);
 	}
@@ -173,7 +184,7 @@ class ImageHistory extends Extension {
 			custom1 (required) - new source
 			custom2 (optional) - old source
 		*/
-		$old_source = $image->source;
+		$old_source = $image->source ?: '';
 
 		// if($new_source == $old_source) return; #CHECK: Do we want any blank source changes to be recorded?
 
@@ -206,7 +217,7 @@ class ImageHistory extends Extension {
 	public function get_history_id($image_id, $create=FALSE) {
 		if(is_null($this->history_id) || $create){
 			//Multiple things can be set/changed at once on post pages
-			//To make things lessy messy on the image history page, these are grouped by a history id.
+			//To make things less messy on the image history page, these are grouped by a history id.
 			$this->generate_history_id($image_id);
 		}
 		return $this->history_id;
@@ -223,28 +234,42 @@ class ImageHistory extends Extension {
 		$this->history_id = $database->get_last_insert_id(NULL);
 	}
 
-	public function get_history_from_id(/*int*/ $image_id) {
-		global $database;
+	public function get_history_from_id(/*int*/ $image_id, $pageN=1) {
+		global $config, $database;
+
+		$limit = $config->get_int("ext_imagehistory_historyperpage");
+		$offset = (($pageN-1) * $limit);
+
 		$row = $database->get_all("
-				SELECT ? AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
-				FROM ext_imagehistory eih
+				SELECT :id AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
+				FROM (SELECT * FROM ext_imagehistory WHERE image_id = :id ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
 				JOIN users ON eih.user_id = users.id
 				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
-				WHERE image_id = ?
 				ORDER BY eih.id DESC, eihe.event_id DESC",
-				array($image_id, $image_id));
-		return ($row ? $row : array());
+				array("id" => $image_id, "limit"=>$limit, "offset"=>$offset));
+
+		$total_pages = ceil($database->get_one("SELECT COUNT(*)	FROM ext_imagehistory WHERE image_id = :id", array("id" => $image_id)) / $limit);
+
+		return ($row ? array("data"=>$row, "total_pages"=>$total_pages) : array("data"=>array(), "total_pages"=>0));
 	}
 
-	protected function get_entire_history() {
-		global $database;
+	protected function get_entire_history($pageN=1) {
+		global $config, $database;
+
+		$limit = $config->get_int("ext_imagehistory_historyperpage");
+		$offset = (($pageN-1) * $limit);
+
 		$row = $database->get_all("
 				SELECT eih.image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
-				FROM ext_imagehistory eih
+				FROM (SELECT * FROM ext_imagehistory ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
 				JOIN users ON eih.user_id = users.id
 				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
-				ORDER BY eih.id DESC, eihe.event_id DESC");
-		return ($row ? $row : array());
+				ORDER BY eih.id DESC, eihe.event_id DESC",
+				array("limit"=>$limit, "offset"=>$offset));
+
+		$total_pages = ceil($database->get_one("SELECT COUNT(*)	FROM ext_imagehistory") / $limit);
+
+		return ($row ? array("data"=>$row, "total_pages"=>$total_pages) : array("data"=>array(), "total_pages"=>0));
 	}
 }
 

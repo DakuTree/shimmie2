@@ -8,7 +8,7 @@ class TagEditTheme extends Themelet {
 	public function display_mass_editor() {
 		global $page;
 		$html = "
-		".make_form(make_link("tag_edit/replace"))."
+		".make_form("tag_edit/replace")."
 			<table class='form'>
 				<tr><th>Search</th><td><input type='text' name='search' class='autocomplete_tags' autocomplete='off'></tr>
 				<tr><th>Replace</th><td><input type='text' name='replace' class='autocomplete_tags' autocomplete='off'></td></tr>
@@ -21,10 +21,10 @@ class TagEditTheme extends Themelet {
 
 	public function mss_html($terms) {
 		$h_terms = html_escape($terms);
-		$html = make_form(make_link("tag_edit/mass_source_set"), "POST") . "
+		$html = make_form("tag_edit/mass_source_set") . "
 				<input type='hidden' name='tags' value='$h_terms'>
 				<input type='text' name='source' value=''>
-				<input type='submit' value='Set Source For All'>
+				<input type='submit' value='Set Source For All' onclick='return confirm(\"This will mass-edit all sources on the page.\nAre you sure you want to do this?\")'>
 			</form>
 		";
 		return $html;
@@ -84,15 +84,16 @@ class TagEditTheme extends Themelet {
 		global $user;
 		$h_source = html_escape($image->get_source());
 		$f_source = $this->format_source($image->get_source());
+		$style = "overflow: hidden; white-space: nowrap; max-width: 350px; text-overflow: ellipsis;";
 		return "
 			<tr>
 				<th>Source</th>
 				<td>
 		".($user->can("edit_image_source") ? "
-					<span class='view' style='overflow: hidden; white-space: nowrap;'>$f_source</span>
+					<div class='view' style='$style'>$f_source</div>
 					<input class='edit' type='text' name='tag_edit__source' value='$h_source'>
 		" : "
-					<span style='overflow: hidden; white-space: nowrap;'>$f_source</span>
+					<div style='$style'>$f_source</div>
 		")."
 				</td>
 			</tr>
