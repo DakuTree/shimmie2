@@ -14,12 +14,6 @@ class FTAG extends Extension {
 			$config->set_bool("in_upgrade", true);
 			$config->set_int("db_version_ftag", 1);
 
-			log_info("upgrade", "Changing filename column to VARCHAR(255)");
-			$database->alter_table_column_type('images', 'filename', 'VARCHAR(255)', 'NOT NULL');
-
-			log_info("upgrade", "Creating index for filename");
-			$database->execute("CREATE INDEX images_filename_idx ON images(filename)");
-
 			log_info("upgrade", "Database_ftag at version 1");
 			$config->set_bool("in_upgrade", false);
 		}
