@@ -59,11 +59,9 @@ class CustomIndexTheme extends IndexTheme {
 		if(class_exists("RandomImage")) { $h_random = "<br><a href='".make_link("random_image/view/".$query)."'>Random</a>"; }else{ $h_random = ""; }
 
 		$h_search_string = html_escape(implode(" ", $search_terms));
-		$h_search_link = make_link();
 		$h_search = "
-			<p><form action='$h_search_link' method='GET'>
+			<p>".make_form(NULL, "GET")."
 				<input type='search' name='search' placeholder='Search' value='$h_search_string' class='autocomplete_tags' autocomplete='off' />
-				<input type='hidden' name='q' value='/post/list'>
 				<input type='submit' value='Find' style='display: none;' />
 			</form>
 		";

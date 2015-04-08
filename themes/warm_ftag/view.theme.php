@@ -62,8 +62,7 @@ class CustomViewImageTheme extends ViewImageTheme {
 	protected function build_navigation(Image $image) {
 		$h_pin = $this->build_pin($image);
 		$h_search = "
-			<form action='".make_link()."' method='GET'>
-				<input type='hidden' name='q' value='/post/list'>
+			".make_form(NULL, "GET")."
 				<input placeholder='Search' name='search' type='text'>
 				<input type='submit' value='Find' style='display: none;'>
 			</form>
@@ -109,32 +108,28 @@ class CustomViewImageTheme extends ViewImageTheme {
 		$html .= "<div id='scoreblock'>
 			Current Score: $i_score
 
-			<form action='".make_link("numeric_score_vote")."' method='POST'>
-			".$user->get_auth_html()."
-			<input type='hidden' name='image_id' value='$i_image_id'>
-			<input type='hidden' name='vote' value='tripleup'>
-			<input type='submit' value='Triple Vote Up'>
+			".make_form("numeric_score_vote", "POST", array(), TRUE)."
+				<input type='hidden' name='image_id' value='$i_image_id'>
+				<input type='hidden' name='vote' value='tripleup'>
+				<input type='submit' value='Triple Vote Up'>
 			</form>
 		
-			<form action='".make_link("numeric_score_vote")."' method='POST'>
-			".$user->get_auth_html()."
-			<input type='hidden' name='image_id' value='$i_image_id'>
-			<input type='hidden' name='vote' value='doubleup'>
-			<input type='submit' value='Double Vote Up'>
+			".make_form("numeric_score_vote", "POST", array(), TRUE)."
+				<input type='hidden' name='image_id' value='$i_image_id'>
+				<input type='hidden' name='vote' value='doubleup'>
+				<input type='submit' value='Double Vote Up'>
 			</form>
 
-			<form action='".make_link("numeric_score_vote")."' method='POST'>
-			".$user->get_auth_html()."
-			<input type='hidden' name='image_id' value='$i_image_id'>
-			<input type='hidden' name='vote' value='up'>
-			<input type='submit' value='Vote Up'>
+			".make_form("numeric_score_vote", "POST", array(), TRUE)."
+				<input type='hidden' name='image_id' value='$i_image_id'>
+				<input type='hidden' name='vote' value='up'>
+				<input type='submit' value='Vote Up'>
 			</form>
 
-			<form action='".make_link("numeric_score_vote")."' method='POST'>
-			".$user->get_auth_html()."
-			<input type='hidden' name='image_id' value='$i_image_id'>
-			<input type='hidden' name='vote' value='null'>
-			<input type='submit' value='Remove Vote'>
+			".make_form("numeric_score_vote", "POST", array(), TRUE)."
+				<input type='hidden' name='image_id' value='$i_image_id'>
+				<input type='hidden' name='vote' value='null'>
+				<input type='submit' value='Remove Vote'>
 			</form>
 
 			<form action='".make_link("numeric_score_vote")."' method='POST'>
@@ -144,7 +139,7 @@ class CustomViewImageTheme extends ViewImageTheme {
 			<input type='submit' value='Vote Down'>
 			</form></div>
 		";
-		$html .= make_form(make_link("post/set"))."
+		$html .= make_form("post/set")."
 					<input type='hidden' name='image_id' value='{$image->id}'>
 					<table style='width: 500px;' class='image_info form'>
 		";
