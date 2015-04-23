@@ -1170,7 +1170,8 @@ class Tag {
 		$i = 0;
 		$tag_count = count($tags);
 		while($i<$tag_count) {
-			$aliases = explode(' ', Tag::resolve_alias($tags[$i]));
+			//TODO: Write comments explainin all this.
+			$aliases = Tag::explode(' ', Tag::resolve_alias($tags[$i]));
 			foreach($aliases as $alias){
 				if(!in_array($alias, $new)){
 					if($tags[$i] == $alias){

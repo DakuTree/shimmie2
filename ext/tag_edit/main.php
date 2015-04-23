@@ -105,7 +105,7 @@ class TagSetEvent extends Event {
 		$this->tags     = array();
 		$this->metatags = array();
 
-		$tag_array = array_unique(Tag::explode($tags));
+		$tag_array = array_iunique(Tag::explode($tags));
 		$tag_array = array_map(array('Tag', 'sanitise'), $tag_array);
 
 		//aliases need to be resolved here or the non-aliased tag will show when onTagSet is called
