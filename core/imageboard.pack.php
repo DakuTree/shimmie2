@@ -428,6 +428,10 @@ class Image {
 	 * @return string
 	 */
 	public function get_filename() {
+		global $database;
+		if(!isset($this->filename)) {
+			$this->filename = $database->get_one("SELECT filename FROM image_filenames WHERE id=:id", array("id"=>$this->id));
+		}
 		return $this->filename;
 	}
 
@@ -612,10 +616,12 @@ class Image {
 			$tags = str_replace("/", "", $tags);
 			$tags = preg_replace("/^\.+/", "", $tags);
 		}
-
+		$base_fname = "";
+		if(strpos($tmpl, '$filename') !== false) {
+			$fname = $this->get_filename();
+			$base_fname = strpos($fname, '.') ? substr($fname, 0, strrpos($fname, '.')) : $fname;
+		}
 		$base_href = $config->get_string('base_href');
-		$fname = $this->get_filename();
-		$base_fname = strpos($fname, '.') ? substr($fname, 0, strrpos($fname, '.')) : $fname;
 
 		$tmpl = str_replace('$id',   $this->id,   $tmpl);
 		$tmpl = str_replace('$hash_ab', substr($this->hash, 0, 2), $tmpl);

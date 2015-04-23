@@ -174,7 +174,7 @@ class ResizeImage extends Extension {
 		$image_filename  = warehouse_path("images", $hash);
 		$info = getimagesize($image_filename);
 		/* Get the image file type */
-		$pathinfo = pathinfo($image_obj->filename);
+		$pathinfo = pathinfo($image_obj->get_filename());
 		$filetype = strtolower($pathinfo['extension']);
 		
 		if (($image_obj->width != $info[0] ) || ($image_obj->height != $info[1])) {
@@ -290,7 +290,7 @@ class ResizeImage extends Extension {
 		if(!@copy($tmp_filename, $target)) {
 			throw new ImageResizeException("Failed to copy new image file from temporary location ({$tmp_filename}) to archive ($target)");
 		}
-		$new_filename = 'resized-'.$image_obj->filename;
+		$new_filename = 'resized-'.$image_obj->get_filename();
 		
 		/* Remove temporary file */
 		@unlink($tmp_filename);

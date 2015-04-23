@@ -311,7 +311,7 @@ class DanbooruApi extends Extension {
 				$xml .= xml_tag("post", array(
 					"id"             => $img->id,
 					"md5"            => $img->hash,
-					"file_name"      => $img->filename,
+					"file_name"      => $img->get_filename(),
 					"file_url"       => $img->get_image_link(),
 					"height"         => $img->height,
 					"width"          => $img->width,

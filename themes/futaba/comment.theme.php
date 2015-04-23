@@ -23,7 +23,7 @@ class CustomCommentListTheme extends CommentListTheme {
 			$image = $pair[0];
 			$comments = $pair[1];
 
-			$h_filename = html_escape($image->filename);
+			$h_filename = html_escape($image->get_filename());
 			$h_filesize = to_shorthand_int($image->filesize);
 			$w = $image->width;
 			$h = $image->height;

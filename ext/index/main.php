@@ -346,7 +346,7 @@ class Index extends Extension {
 		}
 		else if(preg_match("/^(filename|name)[=|:]([a-zA-Z0-9]*)$/i", $event->term, $matches)) {
 			$filename = strtolower($matches[2]);
-			$event->add_querylet(new Querylet("images.filename LIKE :filename{$this->stpen}", array("filename{$this->stpen}"=>"%$filename%")));
+			$event->add_querylet(new Querylet("images.id IN (SELECT DISTINCT id FROM image_filenames WHERE filename LIKE :filename{$this->stpen})", array("filename{$this->stpen}"=>"%$filename%")));
 		}
 		else if(preg_match("/^(source)[=|:](.*)$/i", $event->term, $matches)) {
 			$source = strtolower($matches[2]);
@@ -376,10 +376,10 @@ class Index extends Extension {
 			$cmp = ltrim($matches[1], ":") ?: "=";
 			$event->add_querylet(new Querylet("height $cmp :height{$this->stpen}",array("height{$this->stpen}"=>int_escape($matches[2]))));
 		}
-		else if(preg_match("/^order[=|:](id|width|height|filesize|filename)[_]?(desc|asc)?$/i", $event->term, $matches)){
+		else if(preg_match("/^order[=|:](id|width|height|filesize)[_]?(desc|asc)?$/i", $event->term, $matches)){
 			global $order_sql;
 			$ord = strtolower($matches[1]);
-			$default_order_for_column = preg_match("/^(id|filename)$/", $matches[1]) ? "ASC" : "DESC";
+			$default_order_for_column = ($matches[1] == "id" ? "ASC" : "DESC");
 			$sort = isset($matches[2]) ? strtoupper($matches[2]) : $default_order_for_column;
 			$order_sql = "images.$ord $sort";
 			$event->add_querylet(new Querylet("1=1")); //small hack to avoid metatag being treated as normal tag

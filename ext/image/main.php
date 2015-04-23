@@ -346,19 +346,24 @@ class ImageIO extends Extension {
 		// actually insert the info
 		$database->Execute(
 				"INSERT INTO images(
-					owner_id, owner_ip, filename, filesize,
+					owner_id, owner_ip, filesize,
 					hash, ext, width, height, posted, source
 				)
 				VALUES (
-					:owner_id, :owner_ip, :filename, :filesize,
+					:owner_id, :owner_ip, :filesize,
 					:hash, :ext, :width, :height, now(), :source
 				)",
 				array(
-					"owner_id"=>$user->id, "owner_ip"=>$_SERVER['REMOTE_ADDR'], "filename"=>substr($image->filename, 0, 60), "filesize"=>$image->filesize,
+					"owner_id"=>$user->id, "owner_ip"=>$_SERVER['REMOTE_ADDR'], "filesize"=>$image->filesize,
 					"hash"=>$image->hash, "ext"=>strtolower($image->ext), "width"=>$image->width, "height"=>$image->height, "source"=>$image->source
 				)
 		);
 		$image->id = $database->get_last_insert_id('images_id_seq');
+
+		$database->execute(
+			"INSERT INTO image_filenames (id, filename) VALUES (:id, :filename)",
+			array("id"=>$image->id, "filename"=>substr($image->filename, 0, 255))
+		);
 
 		log_info("image", "Uploaded Image #{$image->id} ({$image->hash})");
 
@@ -464,16 +469,20 @@ class ImageIO extends Extension {
 		// Update the data in the database.
 		$database->Execute(
 				"UPDATE images SET 
-					filename = :filename, filesize = :filesize,	hash = :hash,
+					filesize = :filesize,	hash = :hash,
 					ext = :ext, width = :width, height = :height, source = :source
 				WHERE 
 					id = :id
 				",
 				array(
-					"filename"=>$image->filename, "filesize"=>$image->filesize, "hash"=>$image->hash,
+					"filesize"=>$image->filesize, "hash"=>$image->hash,
 					"ext"=>strtolower($image->ext), "width"=>$image->width, "height"=>$image->height, "source"=>$image->source,
 					"id"=>$id
 				)
+		);
+		$database->execute(
+			"UPDATE image_filenames SET filename = :filename WHERE id = :id",
+			array("id"=>$id, "filename"=>substr($image->filename, 0, 255))
 		);
 
 		log_info("image", "Replaced Image #{$id} with ({$image->hash})");

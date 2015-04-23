@@ -130,7 +130,7 @@ class RotateImage extends Extension {
 		if (file_exists ( $image_filename )==false) { throw new ImageRotateException("$image_filename does not exist."); }
 		$info = getimagesize($image_filename);
 		/* Get the image file type */
-		$pathinfo = pathinfo($image_obj->filename);
+		$pathinfo = pathinfo($image_obj->get_filename());
 		$filetype = strtolower($pathinfo['extension']);
 		
 		/*
@@ -208,7 +208,7 @@ class RotateImage extends Extension {
 		if(!@copy($tmp_filename, $target)) {
 			throw new ImageRotateException("Failed to copy new image file from temporary location ({$tmp_filename}) to archive ($target)");
 		}
-		$new_filename = 'rotated-'.$image_obj->filename;
+		$new_filename = 'rotated-'.$image_obj->get_filename();
 		
 		list($new_width, $new_height) = getimagesize($target);
 

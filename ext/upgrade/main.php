@@ -127,6 +127,25 @@ class Upgrade extends Extension {
 			log_info("upgrade", "Database at version 14");
 			$config->set_bool("in_upgrade", false);
 		}
+
+		if($config->get_int("db_version") < 15) {
+			$config->set_bool("in_upgrade", true);
+			$config->set_int("db_version", 15);
+
+			log_info("upgrade", "Moving filenames to seperate table");
+			$database->create_table("image_filenames", "
+				id INTEGER PRIMARY KEY,
+				filename VARCHAR(255) NOT NULL,
+				FOREIGN KEY (id) REFERENCES images(id) ON DELETE CASCADE
+			");
+			$database->execute("CREATE INDEX image_filenames_filename_idx ON image_filenames(filename)", array());
+
+			$database->execute("INSERT INTO image_filenames	SELECT id, filename FROM images", array());
+			$database->execute("ALTER TABLE images DROP COLUMN filename", array());
+
+			log_info("upgrade", "Database at version 15");
+			$config->set_bool("in_upgrade", false);
+		}
 	}
 
 	public function get_priority() {return 5;}
