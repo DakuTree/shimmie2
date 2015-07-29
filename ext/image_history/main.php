@@ -177,7 +177,7 @@ class ImageHistory extends Extension {
 
 		//CHECK: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
-		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
+		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ? AND type = ?", array($image->id, 'tags'));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
 			$this->events++;
 			$database->execute("
@@ -217,7 +217,7 @@ class ImageHistory extends Extension {
 		//FIXME: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
 		//       This also sets as current user, rather than uploader
-		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
+		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ? AND type = ?", array($image->id, 'source'));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
 			$this->events++;
 			$database->execute("
