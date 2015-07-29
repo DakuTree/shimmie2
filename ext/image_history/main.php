@@ -13,8 +13,7 @@
  *                    Import from tag/source history.
  *                    "First run" for images.
  *                    Fix bulk_add bug keeping last set of history tags.
- *                    Alert if tag/source_history extensions are enabled
- *
+ *                    Image deletion history.
  */
 
 class ImageHistory extends Extension {
@@ -140,6 +139,12 @@ class ImageHistory extends Extension {
 	public function onSourceSet(SourceSetEvent $event) {
 		global $config;
 		if($config->get_bool("ext_imagehistory_source")) $this->add_source_history($event->image, $event->source);
+	}
+
+	//fix for bulk_add, bulk_add_csv
+	//History ID wasn't being reset on each seperate image
+	public function onDataUpload(DataUploadEvent $event) {
+		$this->history_id = NULL;
 	}
 
 	private function add_tag_history(Image $image, /*array*/ $new_tags) {
