@@ -5,12 +5,16 @@
  * Description: Keeps a record of all changes made to an image.
  *              Tag & Source history are implemented by default (toggleable)
  *
- *              TODO: Extension support.
+ *              TODO: Extension support. Rating, Parent, Pools etc.
  *                    Revert/undo tags.
  *                    Reset history.
  *                    Fix history.
  *                    Make sure image always has a starting tag history.
  *                    Import from tag/source history.
+ *                    "First run" for images.
+ *                    Fix bulk_add bug keeping last set of history tags.
+ *                    Alert if tag/source_history extensions are enabled
+ *
  */
 
 class ImageHistory extends Extension {
@@ -89,6 +93,11 @@ class ImageHistory extends Extension {
 				$pageN = int_escape($event->get_arg(1)) ?: 1;
 				$this->theme->display_history_page($page, $this->get_history_from_id($image_id, $pageN), $pageN, "image_history/{$image_id}");
 			}
+		}
+
+		//If tag_history or source_history extensions are enabled, show warning
+		if(class_exists("Tag_History") || class_exists("Source_History")) {
+			$this->theme->display_conflict_warning();
 		}
 	}
 
