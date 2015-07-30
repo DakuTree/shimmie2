@@ -5,12 +5,13 @@
  * Description: Keeps a record of all changes made to an image.
  *              Tag & Source history are implemented by default (toggleable)
  *
- *              TODO: Extension support.
+ *              TODO: Extension support. Rating, Parent, Pools etc.
  *                    Revert/undo tags.
  *                    Reset history.
  *                    Fix history.
  *                    Make sure image always has a starting tag history.
  *                    Import from tag/source history.
+ *                    Image deletion history.
  */
 
 class ImageHistory extends Extension {
@@ -90,6 +91,11 @@ class ImageHistory extends Extension {
 				$this->theme->display_history_page($page, $this->get_history_from_id($image_id, $pageN), $pageN, "image_history/{$image_id}");
 			}
 		}
+
+		//If tag_history or source_history extensions are enabled, show warning
+		if(class_exists("Tag_History") || class_exists("Source_History")) {
+			$this->theme->display_conflict_warning();
+		}
 	}
 
 	public function onUserBlockBuilding(UserBlockBuildingEvent $event) {
@@ -133,7 +139,25 @@ class ImageHistory extends Extension {
 		if($config->get_bool("ext_imagehistory_source")) $this->add_source_history($event->image, $event->source);
 	}
 
-	private function add_tag_history(Image $image, /*array*/ $new_tags) {
+	//fix for bulk_add, bulk_add_csv
+	//History ID wasn't being reset on each seperate image
+	public function onDataUpload(DataUploadEvent $event) {
+		$this->history_id = NULL;
+	}
+
+	private function initPostHistory(Image $image) {
+		global $config;
+		//This is used when a post doesn't have any image history and the history page is loaded.
+		//This can happen when the extension is loaded on an install that already has posts.
+
+		//TODO: Init post history at upload date, to avoid it looking like new post in /all
+
+		//TODO: Send history event instead.
+		if($config->get_bool("ext_imagehistory_tags")) $this->add_tag_history($image, $image->get_tag_array(), TRUE);
+		if($config->get_bool("ext_imagehistory_source")) $this->add_source_history($image, $image->source, TRUE);
+	}
+
+	private function add_tag_history(Image $image, /*array*/ $new_tags, /*bool*/ $firstRun=FALSE) {
 		global $config, $database;
 
 		/*
@@ -142,7 +166,7 @@ class ImageHistory extends Extension {
 			custom2 (optional) - added tags
 			custom3 (optional) - removed tags
 		*/
-		$old_tags = $image->get_tag_array();
+		$old_tags = (!$firstRun ? $image->get_tag_array() : array());
 
 		// if($new_tags == $old_tags) return; #CHECK: Do we want any blank tag changes to be recorded?
 
@@ -153,7 +177,7 @@ class ImageHistory extends Extension {
 
 		//CHECK: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
-		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
+		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ? AND type = ?", array($image->id, 'tags'));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
 			$this->events++;
 			$database->execute("
@@ -176,7 +200,7 @@ class ImageHistory extends Extension {
 		return;
 	}
 
-	private function add_source_history(Image $image, /*string*/ $new_source) {
+	private function add_source_history(Image $image, /*string*/ $new_source, /*bool*/ $firstRun=FALSE) {
 		global $config, $database;
 
 		/*
@@ -184,7 +208,7 @@ class ImageHistory extends Extension {
 			custom1 (required) - new source
 			custom2 (optional) - old source
 		*/
-		$old_source = $image->source ?: '';
+		$old_source = (!$firstRun ? ($image->source ?: '') : '');
 
 		// if($new_source == $old_source) return; #CHECK: Do we want any blank source changes to be recorded?
 
@@ -193,7 +217,7 @@ class ImageHistory extends Extension {
 		//FIXME: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
 		//       This also sets as current user, rather than uploader
-		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
+		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ? AND type = ?", array($image->id, 'source'));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
 			$this->events++;
 			$database->execute("
@@ -240,17 +264,38 @@ class ImageHistory extends Extension {
 		$limit = $config->get_int("ext_imagehistory_historyperpage");
 		$offset = (($pageN-1) * $limit);
 
-		$row = $database->get_all("
-				SELECT :id AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
-				FROM (SELECT * FROM ext_imagehistory WHERE image_id = :id ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
-				JOIN users ON eih.user_id = users.id
-				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
-				ORDER BY eih.id DESC, eihe.event_id DESC",
-				array("id" => $image_id, "limit"=>$limit, "offset"=>$offset));
+		$data = array();
+		$total_pages = 0;
 
-		$total_pages = ceil($database->get_one("SELECT COUNT(*)	FROM ext_imagehistory WHERE image_id = :id", array("id" => $image_id)) / $limit);
+		//CHECK: Unsure if while is needed here, it just seemed like the best way to avoid duplicate code..
+		while(TRUE) {
+			$row = $database->get_all("
+					SELECT :id AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
+					FROM (SELECT * FROM ext_imagehistory WHERE image_id = :id ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
+					JOIN users ON eih.user_id = users.id
+					JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
+					ORDER BY eih.id DESC, eihe.event_id DESC",
+					array("id" => $image_id, "limit"=>$limit, "offset"=>$offset));
 
-		return ($row ? array("data"=>$row, "total_pages"=>$total_pages) : array("data"=>array(), "total_pages"=>0));
+			if($row) {
+				//history exists, set variables then end loop
+				$data = $row;
+				$total_pages = ceil($database->get_one("SELECT COUNT(*)	FROM ext_imagehistory WHERE image_id = :id", array("id" => $image_id)) / $limit);
+				break;
+			} else {
+				//history doesn't exists, check if image_id is valid
+				if($image = Image::by_id($image_id)) {
+					//image_id is valid, init history then repeat loop to grab history
+					$this->initPostHistory($image);
+					continue;
+				} else {
+					//image_id is not valid, end loop
+					break;
+				}
+			}
+		}
+
+		return ($row ? array("data"=>$data, "total_pages"=>$total_pages) : array("data"=>$data, "total_pages"=>$total_pages));
 	}
 
 	protected function get_entire_history($pageN=1) {

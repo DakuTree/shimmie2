@@ -98,4 +98,11 @@ class ImageHistoryTheme extends Themelet {
 		$this->display_paginator($page, $page_url, null, $page_number, $history['total_pages']);
 	}
 
+	public function display_conflict_warning() {
+		global $page;
+		$html = "The tag/source_history can cause conflicts with the image_history extension.<br/>".
+		        "Please disable these extensions.";
+
+		$page->add_block(new Block(null, $html, 'subheading', 20, 'conflict-warning_block'));
+	}
 }
