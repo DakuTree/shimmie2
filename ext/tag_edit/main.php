@@ -105,7 +105,7 @@ class TagSetEvent extends Event {
 		$this->metatags = array();
 
 		//tags need to be sanitised, alias checked & have metatags removed before being passed to onTagSet
-		$tag_array = array_iunique(Tag::explode($tags));
+		$tag_array = Tag::explode($tags);
 		$tag_array = array_map(array('Tag', 'sanitise'), $tag_array);
 		$tag_array = array_iunique(Tag::resolve_aliases($tag_array));
 

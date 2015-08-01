@@ -1135,6 +1135,8 @@ class Tag {
 
 		sort($tag_array);
 
+		$tag_array = array_iunique($tag_array);
+
 		return $tag_array;
 	}
 
