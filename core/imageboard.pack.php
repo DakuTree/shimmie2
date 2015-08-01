@@ -567,9 +567,6 @@ class Image {
 		assert('is_array($tags) && count($tags) > 0', var_export($tags, true));
 		global $database;
 
-		$tags = array_map(array('Tag', 'sanitise'), $tags);
-		$tags = Tag::resolve_aliases($tags);
-
 		if(count($tags) <= 0) {
 			throw new SCoreException('Tried to set zero tags');
 		}
