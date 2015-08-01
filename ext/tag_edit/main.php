@@ -107,7 +107,7 @@ class TagSetEvent extends Event {
 		//tags need to be sanitised, alias checked & have metatags removed before being passed to onTagSet
 		$tag_array = Tag::explode($tags);
 		$tag_array = array_map(array('Tag', 'sanitise'), $tag_array);
-		$tag_array = array_iunique(Tag::resolve_aliases($tag_array));
+		$tag_array = Tag::resolve_aliases($tag_array);
 
 		foreach($tag_array as $tag) {
 			$ttpe = new TagTermParseEvent($tag, $image->id);
