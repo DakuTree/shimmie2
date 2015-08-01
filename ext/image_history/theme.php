@@ -2,9 +2,13 @@
 
 class ImageHistoryTheme extends Themelet {
 	public function get_history_link_html(/*int*/ $image_id) {
+		//FIXME: tempfix // make_form changes never got merged, so we need to manually recreate it here to avoid ugly urls || SEE #482
+		$action    = make_link("image_history/{$image_id}");
+		$nice_urls = (strpos($action, '?q=') !== false ? substr($action, strpos($action, '?q=') + 3) : "");
 
-		//FIXME: Does this really have to be POST? It feels really off..
-		$html = make_form(make_link("image_history/{$image_id}"))."
+		$html = "
+			<form action='{$action}' method='GET'>
+				{$nice_urls}
 				<input type='submit' value='View Image History'>
 			</form>
 		";
@@ -16,8 +20,6 @@ class ImageHistoryTheme extends Themelet {
 
 		$new_history = array();
 		foreach($history['data'] as $value) { $new_history[$value['history_id']][] = $value; } //Isn't there a better way of doing this?
-
-		$n = 0;
 
 		//For now this is using the same layout Danbooru does for it's tag history (http://danbooru.donmai.us/post_versions)
 		//If somebody can improve on this, be my guest.
