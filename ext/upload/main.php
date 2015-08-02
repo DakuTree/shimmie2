@@ -159,6 +159,7 @@ class Upload extends Extension {
 					$source = isset($_POST['source']) ? $_POST['source'] : null;
 					$tags = ''; // Tags aren't changed when uploading. Set to null to stop PHP warnings.
 					
+					$ok = false;
 					if(count($_FILES)) {
 						foreach($_FILES as $file) {
 							$ok = $this->try_upload($file, $tags, $source, $image_id);
@@ -177,6 +178,7 @@ class Upload extends Extension {
 				}
 				else if(!empty($_GET['url'])) {
 					$url = $_GET['url'];
+					$tags = isset($_GET['tags']) ? $_GET['tags'] : 'tagme';
 					$source = isset($_GET['source']) ? $_GET['source'] : $url;
 					$ok = $this->try_transload($url, $tags, $source, $image_id);
 					$this->theme->display_upload_status($page, $ok);
@@ -364,9 +366,10 @@ class Upload extends Extension {
 
 		$tmp_filename = tempnam(ini_get('upload_tmp_dir'), "shimmie_transload");
 
+		// transload() returns Array or Bool, depending on the transload_engine.
 		$headers = transload($url, $tmp_filename);
-
-		$s_filename = findHeader($headers, 'Content-Disposition');
+		
+		$s_filename = is_array($headers) ? findHeader($headers, 'Content-Disposition') : null;
 		$h_filename = ($s_filename ? preg_replace('/^.*filename="([^ ]+)"/i', '$1', $s_filename) : null);
 		$filename = $h_filename ?: basename($url);
 
@@ -384,9 +387,14 @@ class Upload extends Extension {
 			$pathinfo = pathinfo($url);
 			$metadata = array();
 			$metadata['filename'] = $filename;
-			$metadata['extension'] = getExtension(findHeader($headers, 'Content-Type')) ?: $pathinfo['extension'];
 			$metadata['tags'] = $tags;
 			$metadata['source'] = (($url == $source) && !$config->get_bool('upload_tlsource') ? "" : $source);
+			
+			if (is_array($headers)) {
+				$metadata['extension'] = getExtension(findHeader($headers, 'Content-Type'));
+			} else {
+				$metadata['extension'] = $pathinfo['extension'];
+			}
 			
 			/* check for locked > adds to metadata if it has */
 			if(!empty($locked)){

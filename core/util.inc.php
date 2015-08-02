@@ -82,7 +82,7 @@ function sql_escape($input) {
  * Turn all manner of HTML / INI / JS / DB booleans into a PHP one
  *
  * @param $input
- * @return boolean
+ * @return bool
  */
 function bool_escape($input) {
 	/*
@@ -234,7 +234,7 @@ function autodate($date, $html=true) {
  * Check if a given string is a valid date-time. ( Format: yyyy-mm-dd hh:mm:ss )
  *
  * @param $dateTime
- * @return boolean
+ * @return bool
  */
 function isValidDateTime($dateTime) {
 	if (preg_match("/^(\d{4})-(\d{2})-(\d{2}) ([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/", $dateTime, $matches)) {
@@ -250,7 +250,7 @@ function isValidDateTime($dateTime) {
  * Check if a given string is a valid date. ( Format: yyyy-mm-dd )
  *
  * @param $date
- * @return boolean
+ * @return bool
  */
 function isValidDate($date) {
 	if (preg_match("/^(\d{4})-(\d{2})-(\d{2})$/", $date, $matches)) {
@@ -261,6 +261,64 @@ function isValidDate($date) {
 	}
 
 	return false;
+}
+
+function validate_input($inputs) {
+	$outputs = array();
+
+	foreach($inputs as $key => $validations) {
+		$flags = explode(',', $validations);
+		if(in_array('optional', $flags)) {
+			if(!isset($_POST[$key])) {
+				continue;
+			}
+		}
+
+		if(!isset($_POST[$key])) {
+			throw new InvalidInput("Input '$key' not set");
+		}
+
+		$value = $_POST[$key];
+
+		if(in_array('user_id', $flags)) {
+			$id = int_escape($value);
+			if(in_array('exists', $flags)) {
+				if(is_null(User::by_id($id))) {
+					throw new InvalidInput("User #$id does not exist");
+				}
+			}
+			$outputs[$key] = $id;
+		}
+		else if(in_array('user_name', $flags)) {
+			if(strlen($value) < 1) {
+				throw new InvalidInput("Username must be at least 1 character");
+			}
+			else if(!preg_match('/^[a-zA-Z0-9-_]+$/', $value)) {
+				throw new InvalidInput(
+						"Username contains invalid characters. Allowed characters are ".
+						"letters, numbers, dash, and underscore");
+			}
+			$outputs[$key] = $value;
+		}
+		else if(in_array('user_class', $flags)) {
+			global $_user_classes;
+			if(!array_key_exists($value, $_user_classes)) {
+				throw new InvalidInput("Invalid user class: ".html_escape($class));
+			}
+			$outputs[$key] = $value;
+		}
+		else if(in_array('email', $flags)) {
+			$outputs[$key] = $value;
+		}
+		else if(in_array('password', $flags)) {
+			$outputs[$key] = $value;
+		}
+		else {
+			throw new InvalidInput("Unknown validation '$validations'");
+		}
+	}
+
+	return $outputs;
 }
 
 /**
@@ -328,9 +386,7 @@ function make_link($page=null, $query=null) {
 	if(is_null($page)) $page = $config->get_string('main_page');
 
 	if(NICE_URLS || $config->get_bool('nice_urls', false)) {
-		#$full = "http://" . $_SERVER["SERVER_NAME"] . $_SERVER["PHP_SELF"];
-		$full = $_SERVER["PHP_SELF"];
-		$base = str_replace('/'.basename($_SERVER["SCRIPT_FILENAME"]), "", $full);
+		$base = str_replace('/'.basename($_SERVER["SCRIPT_FILENAME"]), "", $_SERVER["PHP_SELF"]);
 	}
 	else {
 		$base = "./".basename($_SERVER["SCRIPT_FILENAME"])."?q=";
@@ -379,7 +435,7 @@ function modify_url($url, $changes) {
 		unset($changes['q']);
 	}
 	else {
-		$base = $_GET['q'];
+		$base = _get_query();
 	}
 
 	if(isset($params['q'])) {
@@ -402,7 +458,7 @@ function modify_url($url, $changes) {
  * @return string
  */
 function make_http(/*string*/ $link) {
-	if(strpos($link, "ttp://") > 0) {
+	if(strpos($link, "://") > 0) {
 		return $link;
 	}
 
@@ -658,7 +714,7 @@ function getExtension ($mime_type){
  * @private
  */
 function _version_check() {
-	$min_version = "5.3.7";
+	$min_version = "5.4.8";
 	if(version_compare(PHP_VERSION, $min_version) == -1) {
 		print "
 Currently SCore Engine doesn't support versions of PHP lower than $min_version --
@@ -798,7 +854,6 @@ function get_session_ip(Config $config) {
  * conflicts from multiple installs within one domain.
  */
 function get_prefixed_cookie(/*string*/ $name) {
-	global $config;
 	$full_name = COOKIE_PREFIX."_".$name;
 	if(isset($_COOKIE[$full_name])) {
 		return $_COOKIE[$full_name];
@@ -819,7 +874,6 @@ function get_prefixed_cookie(/*string*/ $name) {
  * @param string $path
  */
 function set_prefixed_cookie($name, $value, $time, $path) {
-	global $config;
 	$full_name = COOKIE_PREFIX."_".$name;
 	setcookie($full_name, $value, $time, $path);
 }
@@ -860,7 +914,7 @@ function get_base_href() {
 	$possible_vars = array('SCRIPT_NAME', 'PHP_SELF', 'PATH_INFO', 'ORIG_PATH_INFO');
 	$ok_var = null;
 	foreach($possible_vars as $var) {
-		if(substr($_SERVER[$var], -4) === '.php') {
+		if(isset($_SERVER[$var]) && substr($_SERVER[$var], -4) === '.php') {
 			$ok_var = $_SERVER[$var];
 			break;
 		}
@@ -971,11 +1025,6 @@ function transload($url, $mfile) {
 		fwrite($fp, $data);
 		fclose($fp);
 
-		//
-		// Scrutinizer-ci complains that $http_response_header does not exist,
-		// however, $http_response_header is actually a super-global.
-		// I have filed a bug with PHP-Analyzer here: https://github.com/scrutinizer-ci/php-analyzer/issues/212
-		//
 		$headers = http_parse_headers(implode("\n", $http_response_header));
 
 		return $headers;
@@ -1007,17 +1056,29 @@ if (!function_exists('http_parse_headers')) { #http://www.php.net/manual/en/func
 	}
 }
 
-function findHeader ($headers, $name){
-	//HTTP Headers can sometimes be lowercase which will cause issues.
-	//In cases like these, we need to make sure to check for them if the camelcase version does not exist.
-	$header = FALSE;
+/**
+ * HTTP Headers can sometimes be lowercase which will cause issues.
+ * In cases like these, we need to make sure to check for them if the camelcase version does not exist.
+ * 
+ * @param array $headers
+ * @param mixed $name
+ * @return mixed
+ */
+function findHeader ($headers, $name) {
+	if (!is_array($headers)) {
+		return false;
+	}
+	
+	$header = false;
 
-	if(array_key_exists($name, $headers)){
+	if(array_key_exists($name, $headers)) {
 		$header = $headers[$name];
-	}else{
-		$headers = array_change_key_case($headers);
-		if(array_key_exists(strtolower($name), $headers)){
-			$header = $headers[strtolower($name)];
+	} else {
+		$headers = array_change_key_case($headers); // convert all to lower case.
+		$lc_name = strtolower($name);
+		
+		if(array_key_exists($lc_name, $headers)) {
+			$header = $headers[$lc_name];
 		}
 	}
 
@@ -1088,29 +1149,29 @@ define("SCORE_LOG_NOTSET", 0);
  * @param string $section
  * @param int $priority
  * @param string $message
- * @param null|bool|string $flash
+ * @param bool|string $flash
  * @param array $args
  */
-function log_msg(/*string*/ $section, /*int*/ $priority, /*string*/ $message, $flash=null, $args=array()) {
+function log_msg(/*string*/ $section, /*int*/ $priority, /*string*/ $message, $flash=false, $args=array()) {
 	send_event(new LogEvent($section, $priority, $message, $args));
 	$threshold = defined("CLI_LOG_LEVEL") ? CLI_LOG_LEVEL : 0;
 	if(is_cli() && ($priority >= $threshold)) {
 		print date("c")." $section: $message\n";
 	}
-	if($flash === True) {
+	if($flash === true) {
 		flash_message($message);
 	}
-	else if(!is_null($flash)) {
+	else if(is_string($flash)) {
 		flash_message($flash);
 	}
 }
 
 // More shorthand ways of logging
-function log_debug(   /*string*/ $section, /*string*/ $message, $flash=null, $args=array()) {log_msg($section, SCORE_LOG_DEBUG, $message, $flash, $args);}
-function log_info(    /*string*/ $section, /*string*/ $message, $flash=null, $args=array()) {log_msg($section, SCORE_LOG_INFO, $message, $flash, $args);}
-function log_warning( /*string*/ $section, /*string*/ $message, $flash=null, $args=array()) {log_msg($section, SCORE_LOG_WARNING, $message, $flash, $args);}
-function log_error(   /*string*/ $section, /*string*/ $message, $flash=null, $args=array()) {log_msg($section, SCORE_LOG_ERROR, $message, $flash, $args);}
-function log_critical(/*string*/ $section, /*string*/ $message, $flash=null, $args=array()) {log_msg($section, SCORE_LOG_CRITICAL, $message, $flash, $args);}
+function log_debug(   /*string*/ $section, /*string*/ $message, $flash=false, $args=array()) {log_msg($section, SCORE_LOG_DEBUG, $message, $flash, $args);}
+function log_info(    /*string*/ $section, /*string*/ $message, $flash=false, $args=array()) {log_msg($section, SCORE_LOG_INFO, $message, $flash, $args);}
+function log_warning( /*string*/ $section, /*string*/ $message, $flash=false, $args=array()) {log_msg($section, SCORE_LOG_WARNING, $message, $flash, $args);}
+function log_error(   /*string*/ $section, /*string*/ $message, $flash=false, $args=array()) {log_msg($section, SCORE_LOG_ERROR, $message, $flash, $args);}
+function log_critical(/*string*/ $section, /*string*/ $message, $flash=false, $args=array()) {log_msg($section, SCORE_LOG_CRITICAL, $message, $flash, $args);}
 
 
 $_request_id = null;
@@ -1291,6 +1352,64 @@ function full_copy($source, $target) {
 	}
 }
 
+/**
+ * Return a list of all the regular files in a directory and subdirectories
+ *
+ * @param string $base
+ * @param string $_sub_dir
+ * @return array file list
+ */
+function list_files(/*string*/ $base, $_sub_dir="") {
+    assert(is_dir($base));
+
+    $file_list = array();
+
+    $files = array();
+    $dir = opendir("$base/$_sub_dir");
+    while($f = readdir($dir)) {
+        $files[] = $f;
+    }
+    closedir($dir);
+    sort($files);
+
+    foreach($files as $filename) {
+        $full_path = "$base/$_sub_dir/$filename";
+
+        if(is_link($full_path)) {
+            // ignore
+        }
+        else if(is_dir($full_path)) {
+            if($filename == "." || $filename == "..") {
+                $file_list = array_merge(
+                    $file_list,
+                    list_files($base, "$_sub_dir/$filename")
+                );
+            }
+        }
+        else {
+            $full_path = str_replace("//", "/", $full_path);
+            $file_list[] = $full_path;
+        }
+    }
+
+    return $file_list;
+}
+
+
+function path_to_tags($path) {
+    $matches = array();
+    if(preg_match("/\d+ - (.*)\.([a-zA-Z]+)/", basename($path), $matches)) {
+        $tags = $matches[1];
+    }
+    else {
+        $tags = dirname($path);
+        $tags = str_replace("/", " ", $tags);
+        $tags = str_replace("__", " ", $tags);
+        $tags = trim($tags);
+    }
+    return $tags;
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
 * Event API                                                                 *
@@ -1387,6 +1506,19 @@ function get_debug_info() {
 	return $debug;
 }
 
+function score_assert_handler($file, $line, $code, $desc = null) {
+	$file = basename($file);
+	print("Assertion failed at $file:$line: $code ($desc)");
+	/*
+	print("<pre>");
+	debug_print_backtrace();
+	print("</pre>");
+	*/
+}
+//assert_options(ASSERT_ACTIVE, 1);
+assert_options(ASSERT_WARNING, 0);
+assert_options(ASSERT_QUIET_EVAL, 1);
+assert_options(ASSERT_CALLBACK, 'score_assert_handler');
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
 * Request initialisation stuff                                              *
@@ -1548,7 +1680,7 @@ function _fatal_error(Exception $e) {
 	<body>
 		<h1>Internal Error</h1>
 		<p><b>Message:</b> '.$message.'
-		<p><b>Version:</b> '.$version.'
+		<p><b>Version:</b> '.$version.' (on '.phpversion().')
 	</body>
 </html>
 ';
@@ -1598,6 +1730,10 @@ function _get_user() {
 	assert(!is_null($user));
 
 	return $user;
+}
+
+function _get_query() {
+	return @$_POST["q"]?:@$_GET["q"];
 }
 
 

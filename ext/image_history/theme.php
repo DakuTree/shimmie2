@@ -2,7 +2,6 @@
 
 class ImageHistoryTheme extends Themelet {
 	public function get_history_link_html(/*int*/ $image_id) {
-
 		$html = make_form("image_history/{$image_id}", "GET")."
 				<input type='submit' value='View Image History'>
 			</form>

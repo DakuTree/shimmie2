@@ -75,6 +75,8 @@ class Image {
 	 * @param null|mixed $row
 	 */
 	public function __construct($row=null) {
+		assert('is_null($row) || is_array($row)');
+
 		if(!is_null($row)) {
 			foreach($row as $name => $value) {
 				// some databases use table.name rather than name
@@ -97,7 +99,7 @@ class Image {
 	 * @return Image
 	 */
 	public static function by_id(/*int*/ $id) {
-		assert(is_numeric($id));
+		assert('is_numeric($id)');
 		global $database;
 		$row = $database->get_row("SELECT * FROM images WHERE images.id=:id", array("id"=>$id));
 		return ($row ? new Image($row) : null);
@@ -110,7 +112,7 @@ class Image {
 	 * @return Image
 	 */
 	public static function by_hash(/*string*/ $hash) {
-		assert(is_string($hash));
+		assert('is_string($hash)');
 		global $database;
 		$row = $database->get_row("SELECT images.* FROM images WHERE hash=:hash", array("hash"=>$hash));
 		return ($row ? new Image($row) : null);
@@ -123,7 +125,7 @@ class Image {
 	 * @return Image
 	 */
 	public static function by_random($tags=array()) {
-		assert(is_array($tags));
+		assert('is_array($tags)');
 		$max = Image::count_images($tags);
 		if ($max < 1) return null;		// From Issue #22 - opened by HungryFeline on May 30, 2011.
 		$rand = mt_rand(0, $max-1);
@@ -142,9 +144,9 @@ class Image {
 	 * @return Image[]
 	 */
 	public static function find_images(/*int*/ $start, /*int*/ $limit, $tags=array()) {
-		assert(is_numeric($start));
-		assert(is_numeric($limit));
-		assert(is_array($tags));
+		assert('is_numeric($start)');
+		assert('is_numeric($limit)');
+		assert('is_array($tags)');
 		global $database, $user, $config, $order_sql;
 
 		$images = array();
@@ -158,17 +160,81 @@ class Image {
 			}
 		}
 
-		$querylet = Image::build_search_querylet($tags);
-		$querylet->append(new Querylet(" ORDER BY ".($order_sql ?: "images.".$config->get_string("index_order"))));
-		$querylet->append(new Querylet(" LIMIT :limit OFFSET :offset", array("limit"=>$limit, "offset"=>$start)));
-		#var_dump($querylet->sql); var_dump($querylet->variables);
-		$result = $database->execute($querylet->sql, $querylet->variables);
+		$result = null;
+		if(SEARCH_ACCEL) {
+			$result = Image::get_accelerated_result($tags, $start, $limit);
+		}
+
+		if(!$result) {
+			$querylet = Image::build_search_querylet($tags);
+			$querylet->append(new Querylet(" ORDER BY ".($order_sql ?: "images.".$config->get_string("index_order"))));
+			$querylet->append(new Querylet(" LIMIT :limit OFFSET :offset", array("limit"=>$limit, "offset"=>$start)));
+			#var_dump($querylet->sql); var_dump($querylet->variables);
+			$result = $database->execute($querylet->sql, $querylet->variables);
+		}
 
 		while($row = $result->fetch()) {
 			$images[] = new Image($row);
 		}
 		$order_sql = null;
 		return $images;
+	}
+
+	public function validate_accel($tags) {
+		$yays = 0;
+		$nays = 0;
+		foreach($tags as $tag) {
+			if(!preg_match("/^-?[a-zA-Z0-9_]+$/", $tag)) {
+				return false;
+			}
+			if($tag[0] == "-") $nays++;
+			else $yays++;
+		}
+		return ($yays > 1 || $nays > 0);
+	}
+
+	public function get_accelerated_result($tags, $offset, $limit) {
+		global $database;
+
+		$tags = Tag::resolve_aliases($tags);
+		if(!Image::validate_accel($tags)) {
+			return null;
+		}
+
+		$yays = array();
+		$nays = array();
+		foreach($tags as $tag) {
+			if($tag[0] == "-") {
+				$nays[] = substr($tag, 1);
+			}
+			else {
+				$yays[] = $tag;
+			}
+		}
+		$req = array(
+			"yays" => $yays,
+			"nays" => $nays,
+			"offset" => $offset,
+			"limit" => $limit,
+		);
+
+		$fp = fsockopen("127.0.0.1", 21212);
+		if (!$fp) {
+			return null;
+		}
+		fwrite($fp, json_encode($req));
+		$data = fgets($fp, 1024);
+		fclose($fp);
+
+		$response = json_decode($data);
+		$list = implode(",", $response);
+		if($list) {
+			$result = $database->execute("SELECT * FROM images WHERE id IN ($list) ORDER BY images.id DESC");
+		}
+		else {
+			$result = $database->execute("SELECT * FROM images WHERE 1=0 ORDER BY images.id DESC");
+		}
+		return $result;
 	}
 
 	/*
@@ -182,7 +248,7 @@ class Image {
 	 * @return mixed
 	 */
 	public static function count_images($tags=array()) {
-		assert(is_array($tags));
+		assert('is_array($tags)');
 		global $database;
 		$tag_count = count($tags);
 
@@ -214,8 +280,8 @@ class Image {
 	 * @return float
 	 */
 	public static function count_pages($tags=array()) {
-		assert(is_array($tags));
-		global $config, $database;
+		assert('is_array($tags)');
+		global $config;
 		return ceil(Image::count_images($tags) / $config->get_int('index_images'));
 	}
 
@@ -235,8 +301,8 @@ class Image {
 	 * @return Image
 	 */
 	public function get_next($tags=array(), $next=true) {
-		assert(is_array($tags));
-		assert(is_bool($next));
+		assert('is_array($tags)');
+		assert('is_bool($next)');
 		global $database;
 
 		if($next) {
@@ -321,33 +387,7 @@ class Image {
 	 * @return string
 	 */
 	public function get_image_link() {
-		global $config;
-
-		$image_ilink = $config->get_string('image_ilink');  // store a copy for speed.
-
-		if( !empty($image_ilink) ) {	/* empty is faster than strlen */
-			if(!startsWith($image_ilink, "http://") && !startsWith($image_ilink, "/")) {
-				$image_ilink = make_link($image_ilink);
-			}
-			return $this->parse_link_template($image_ilink);
-		}
-		else if($config->get_bool('nice_urls', false)) {
-			return $this->parse_link_template(make_link('_images/$hash/$id%20-%20$tags.$ext'));
-		}
-		else {
-			return $this->parse_link_template(make_link('image/$id.$ext'));
-		}
-	}
-
-	/**
-	 * Get a short link to the full size image
-	 *
-	 * @deprecated
-	 * @return string
-	 */
-	public function get_short_link() {
-		global $config;
-		return $this->parse_link_template($config->get_string('image_slink'));
+		return $this->get_link('image_ilink', '_images/$hash/$id%20-%20$tags.$ext', 'image/$id.jpg');
 	}
 
 	/**
@@ -356,21 +396,33 @@ class Image {
 	 * @return string
 	 */
 	public function get_thumb_link() {
+		return $this->get_link('image_tlink', '_thumbs/$hash/thumb.jpg', 'thumb/$id.jpg');
+	}
+
+	/**
+	 * Check configured template for a link, then try nice URL, then plain URL
+	 *
+	 * @param $template
+	 * @param $nice
+	 * @param $plain
+	 * @return string
+	 */
+	private function get_link($template, $nice, $plain) {
 		global $config;
 
-		$image_tlink = $config->get_string('image_tlink'); // store a copy for speed.
+		$image_link = $config->get_string($template);
 
-		if( !empty($image_tlink) ) {	/* empty is faster than strlen */
-			if(!startsWith($image_tlink, "http://") && !startsWith($image_tlink, "/")) {
-				$image_tlink = make_link($image_tlink);
+		if(!empty($image_link)) {
+			if(!(strpos($image_link, "://") > 0) && !startsWith($image_link, "/")) {
+				$image_link = make_link($image_link);
 			}
-			return $this->parse_link_template($image_tlink);
+			return $this->parse_link_template($image_link);
 		}
 		else if($config->get_bool('nice_urls', false)) {
-			return $this->parse_link_template(make_link('_thumbs/$hash/thumb.jpg'));
+			return $this->parse_link_template(make_link($nice));
 		}
 		else {
-			return $this->parse_link_template(make_link('thumb/$id.jpg'));
+			return $this->parse_link_template(make_link($plain));
 		}
 	}
 
@@ -512,13 +564,14 @@ class Image {
 	 * @param string[] $tags
 	 */
 	public function set_tags($tags) {
+		assert('is_array($tags) && count($tags) > 0', var_export($tags, true));
 		global $database;
 
-		assert(is_array($tags));
-		assert(count($tags) > 0);
-		$new_tags = implode(" ", $tags);
+		if(count($tags) <= 0) {
+			throw new SCoreException('Tried to set zero tags');
+		}
 
-		if($new_tags != $this->get_tag_list()) {
+		if(implode(" ", $tags) != $this->get_tag_list()) {
 			// delete old
 			$this->delete_tags_from_image();
 			// insert each new tags
@@ -665,7 +718,7 @@ class Image {
 	 * @return \Querylet
 	 */
 	private static function build_search_querylet($terms) {
-		assert(is_array($terms));
+		assert('is_array($terms)');
 		global $database;
 		if($database->get_driver_name() === "mysql")
 			return Image::build_ugly_search_querylet($terms);
@@ -1044,10 +1097,11 @@ class Tag {
 	 * @return mixed
 	 */
 	public static function sanitise($tag) {
-		assert(is_string($tag));
-		$tag = preg_replace("/[\s?*]/", "", $tag);
-		$tag = preg_replace("/\.+/", ".", $tag);
-		$tag = preg_replace("/^(\.+[\/\\\\])+/", "", $tag);
+		assert('is_string($tag)');
+		$tag = preg_replace("/[\s?*]/", "", $tag);            # whitespace
+		$tag = preg_replace('/\x20(\x0e|\x0f)/', '', $tag);   # unicode RTL
+		$tag = preg_replace("/\.+/", ".", $tag);              # strings of dots?
+		$tag = preg_replace("/^(\.+[\/\\\\])+/", "", $tag);   # trailing slashes?
 		return $tag;
 	}
 
@@ -1059,7 +1113,7 @@ class Tag {
 	 * @return array
 	 */
 	public static function explode($tags, $tagme=true) {
-		assert(is_string($tags) || is_array($tags));
+		assert('is_string($tags) || is_array($tags)');
 
 		if(is_string($tags)) {
 			$tags = explode(' ', trim($tags));
@@ -1082,6 +1136,8 @@ class Tag {
 
 		sort($tag_array);
 
+		$tag_array = array_iunique($tag_array);
+
 		return $tag_array;
 	}
 
@@ -1090,7 +1146,7 @@ class Tag {
 	 * @return string
 	 */
 	public static function implode($tags) {
-		assert(is_string($tags) || is_array($tags));
+		assert('is_string($tags) || is_array($tags)');
 
 		if(is_array($tags)) {
 			sort($tags);
@@ -1108,7 +1164,7 @@ class Tag {
 	 * @return string
 	 */
 	public static function resolve_alias($tag) {
-		assert(is_string($tag));
+		assert('is_string($tag)');
 
 		$negative = false;
 		if(!empty($tag) && ($tag[0] == '-')) {
@@ -1163,15 +1219,14 @@ class Tag {
 	 * @return array
 	 */
 	public static function resolve_aliases($tags) {
-		assert(is_array($tags));
+		assert('is_array($tags)');
 
 		$new = array();
 
 		$i = 0;
 		$tag_count = count($tags);
 		while($i<$tag_count) {
-			//TODO: Write comments explainin all this.
-			$aliases = Tag::explode(' ', Tag::resolve_alias($tags[$i]));
+			$aliases = Tag::explode(Tag::resolve_alias($tags[$i]), FALSE);
 			foreach($aliases as $alias){
 				if(!in_array($alias, $new)){
 					if($tags[$i] == $alias){
@@ -1210,6 +1265,58 @@ function move_upload_to_archive(DataUploadEvent $event) {
 		throw new UploadException("Failed to copy file from uploads ({$event->tmpname}) to archive ($target): {$errors['type']} / {$errors['message']}");
 	}
 	return true;
+}
+
+/**
+ * Add a directory full of images
+ *
+ * @param $base string
+ * @return string
+ */
+function add_dir(/*string*/ $base) {
+    $list = "";
+
+    foreach(list_files($base) as $full_path) {
+        $short_path = str_replace($base, "", $full_path);
+        $filename = basename($full_path);
+
+        $tags = path_to_tags($short_path);
+        $list .= "<br>".html_escape("$short_path (".str_replace(" ", ", ", $tags).")... ");
+        try {
+            add_image($full_path, $filename, $tags);
+            $list .= "ok\n";
+        }
+        catch(UploadException $ex) {
+            $list .= "failed: ".$ex->getMessage()."\n";
+        }
+    }
+
+    return $list;
+}
+
+/**
+ * @param $tmpname
+ * @param $filename
+ * @param $tags
+ * @throws UploadException
+ */
+function add_image(/*string*/ $tmpname, /*string*/ $filename, /*string*/ $tags) {
+    assert(file_exists($tmpname));
+
+    $pathinfo = pathinfo($filename);
+    if(!array_key_exists('extension', $pathinfo)) {
+        throw new UploadException("File has no extension");
+    }
+    $metadata = array();
+    $metadata['filename'] = $pathinfo['basename'];
+    $metadata['extension'] = $pathinfo['extension'];
+    $metadata['tags'] = $tags;
+    $metadata['source'] = null;
+    $event = new DataUploadEvent($tmpname, $metadata);
+    send_event($event);
+    if($event->image_id == -1) {
+        throw new UploadException("File type not recognised");
+    }
 }
 
 /**

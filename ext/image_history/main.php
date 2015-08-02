@@ -9,9 +9,9 @@
  *                    Revert/undo tags.
  *                    Reset history.
  *                    Fix history.
- *                    Make sure image always has a starting tag history.
  *                    Import from tag/source history.
- *                    Image deletion history.
+ *                    Image deletion history? (Unsure how possible this would be as image history is removed on deletion)
+ *                    User restrictions.
  */
 
 class ImageHistory extends Extension {
@@ -139,12 +139,13 @@ class ImageHistory extends Extension {
 		if($config->get_bool("ext_imagehistory_source")) $this->add_source_history($event->image, $event->source);
 	}
 
-	//fix for bulk_add, bulk_add_csv
-	//History ID wasn't being reset on each seperate image
+	//fix for bulk_add, need to make sure history id is different for each image
 	public function onDataUpload(DataUploadEvent $event) {
 		$this->history_id = NULL;
+		$this->events = 0;
 	}
 
+	/** add history functions **/
 	private function initPostHistory(Image $image) {
 		global $config;
 		//This is used when a post doesn't have any image history and the history page is loaded.
@@ -177,7 +178,7 @@ class ImageHistory extends Extension {
 
 		//CHECK: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
-		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ? AND type = ?", array($image->id, 'tags'));
+		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
 			$this->events++;
 			$database->execute("
@@ -217,7 +218,7 @@ class ImageHistory extends Extension {
 		//FIXME: This feels awfully inefficent. This should never have to be checked, assuming this ext is mandetory.
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
 		//       This also sets as current user, rather than uploader
-		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ? AND type = ?", array($image->id, 'source'));
+		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
 			$this->events++;
 			$database->execute("
@@ -238,6 +239,7 @@ class ImageHistory extends Extension {
 		return;
 	}
 
+	/** get history_id functions **/
 	public function get_history_id($image_id, $create=FALSE) {
 		if(is_null($this->history_id) || $create){
 			//Multiple things can be set/changed at once on post pages
@@ -258,6 +260,7 @@ class ImageHistory extends Extension {
 		$this->history_id = $database->get_last_insert_id(NULL);
 	}
 
+	/** get_history functions **/
 	public function get_history_from_id(/*int*/ $image_id, $pageN=1) {
 		global $config, $database;
 
@@ -270,12 +273,12 @@ class ImageHistory extends Extension {
 		//CHECK: Unsure if while is needed here, it just seemed like the best way to avoid duplicate code..
 		while(TRUE) {
 			$row = $database->get_all("
-					SELECT :id AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
-					FROM (SELECT * FROM ext_imagehistory WHERE image_id = :id ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
-					JOIN users ON eih.user_id = users.id
-					JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
-					ORDER BY eih.id DESC, eihe.event_id DESC",
-					array("id" => $image_id, "limit"=>$limit, "offset"=>$offset));
+				SELECT :id AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
+				FROM (SELECT * FROM ext_imagehistory WHERE image_id = :id ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
+				JOIN users ON eih.user_id = users.id
+				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
+				ORDER BY eih.id DESC, eihe.event_id DESC",
+				array("id" => $image_id, "limit"=>$limit, "offset"=>$offset));
 
 			if($row) {
 				//history exists, set variables then end loop
