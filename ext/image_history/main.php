@@ -10,7 +10,6 @@
  *                    Reset history.
  *                    Fix history.
  *                    Import from tag/source history.
- *                    Fix bulk_add bug keeping last set of history tags.
  *                    Image deletion history? (Unsure how possible this would be as image history is removed on deletion)
  *                    User restrictions.
  */
@@ -138,6 +137,12 @@ class ImageHistory extends Extension {
 	public function onSourceSet(SourceSetEvent $event) {
 		global $config;
 		if($config->get_bool("ext_imagehistory_source")) $this->add_source_history($event->image, $event->source);
+	}
+
+	//fix for bulk_add, need to make sure history id is different for each image
+	public function onDataUpload(DataUploadEvent $event) {
+		$this->history_id = NULL;
+		$this->events = 0;
 	}
 
 	/** add history functions **/
