@@ -69,6 +69,11 @@ UL {
 	text-align: left;
 }
 
+body > header > h1 {
+	max-height: 34px;
+	overflow-y: auto;
+}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *             the navigation bar, and all its blocks             *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
