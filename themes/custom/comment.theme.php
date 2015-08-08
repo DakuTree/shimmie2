@@ -11,7 +11,6 @@ class CustomCommentListTheme extends CommentListTheme {
 		if($postbox) {
 			$html .= $this->build_postbox($image->id);
 		}
-		$page->add_block(new Block("Comments", $html, "main_hide", 30, "comment-list-image"));
+		$page->add_block(new Block("Comments (".count($comments).")", $html, "main_hide", 30, "comment-list-image"));
 	}
-
 }
