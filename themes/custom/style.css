@@ -1,0 +1,171 @@
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                  things common to all pages                    *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+BODY {
+	background: #EEE;
+	font-family: sans-serif;
+	font-size: 14px;
+	margin: 0px;
+}
+H1 {
+	background: #BBB;
+	text-align: center;
+	border: 1px solid #AAA;
+}
+H1 A {
+	color: black;
+}
+H3 {
+	text-align: center;
+	margin: 0px;
+}
+SECTION>H3 {
+	background: #CCC;
+	border: 1px solid #BBB;
+}
+SECTION>.blockbody, .comment, .setupblock {
+	background: #DDD;
+	border: 1px solid #CCC;
+}
+SECTION>.blockbody, H1, SECTION>H3, FOOTER, .comment, .setupblock {
+	margin: 8px;
+	padding: 8px;
+	border-radius: 12px; /* standard, webkit, opera */
+	-moz-border-radius: 12px; /* mozilla haven't committed yet */
+	box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* standard, opera */
+	-webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* webkit haven't committed yet */
+	-moz-box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* mozilla haven't committed yet */
+}
+THEAD {
+	font-weight: bold;
+}
+TD {
+	vertical-align: top;
+	text-align: center;
+}
+
+TABLE.zebra {border-spacing: 0px; border: 2px solid #CCC;}
+TABLE.zebra TD, TABLE.zebra TH {vertical-align: middle; padding: 4px;}
+TABLE.zebra THEAD TD, TABLE.zebra THEAD TH {border-bottom: 2px solid #CCC;}
+TABLE.zebra TFOOT TD, TABLE.zebra TFOOT TH {border-top: 2px solid #CCC;}
+TABLE.zebra TR TD {border-bottom: 1px solid #DDD;}
+TABLE.zebra TR:nth-child(odd) {background: #EFEFEF;}
+TABLE.zebra TR:nth-child(even) {background: #E0E0E0;}
+
+FOOTER {
+	clear: both;
+	font-size: 0.7em;
+	text-align: center;
+	background: #BBB;
+	border: 1px solid #AAA;
+}
+
+A {text-decoration: none;}
+A:hover {text-decoration: underline;}
+
+UL {
+	text-align: left;
+}
+
+body > header > h1 {
+	max-height: 34px;
+	overflow-y: auto;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*             the navigation bar, and all its blocks             *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+NAV {
+	width: 200px;
+	float: left;
+	text-align: center;
+	margin-left: 16px;
+}
+NAV .blockbody {
+	font-size: 0.85em;
+	text-align: center;
+	overflow: hidden;
+}
+NAV TABLE {
+	width: 100%;
+}
+NAV INPUT {
+	width: 100%;
+	padding: 0px;
+}
+NAV SELECT {
+	width: 100%;
+	padding: 0px;
+}
+
+.more:after {
+	content: " >>>";
+}
+
+.tag_count:before {
+	content: "(";
+}
+.tag_count:after {
+	content: ")";
+}
+
+#paginator .blockbody {
+	background: none;
+	border: none;
+	box-shadow: none;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                 the main part of each page                     *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+ARTICLE {
+	margin-left: 226px;
+	margin-right: 16px;
+	margin-top: 16px;
+	text-align: center;
+	height: 1%;
+}
+ARTICLE TABLE {
+	width: 90%;
+	margin: auto;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                     specific page types                        *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+#pagelist {
+	margin-top: 32px;
+}
+
+.thumb {
+	width: 226px;
+	display: inline-block;
+	zoom: 1; /* ie6 */
+	*display: inline; /* ie6 */
+	text-align: center;
+	margin-bottom: 8px;
+}
+.thumb IMG {
+	border: 1px solid #CCC;
+	background: #DDD;
+	padding: 8px;
+	border-radius: 12px; /* standard, webkit, opera */
+	-moz-border-radius: 12px; /* mozilla haven't committed yet */
+	box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* standard, opera */
+	-webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* webkit haven't committed yet */
+	-moz-box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* mozilla haven't committed yet */
+}
+
+/* Fix vertical alignment of checkboxes */
+input[type=checkbox] {
+	vertical-align: middle;
+	position: relative;
+	bottom: 1px;
+	margin-top: 4px;
+}
