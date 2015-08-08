@@ -9,8 +9,6 @@ class Layout {
 	public function display_page(Page $page) {
 		global $config;
 
-		$theme_name = $config->get_string('theme', 'default');
-		$data_href = get_base_href();
 		$contact_link = $config->get_string('contact_link');
 
 		$header_html = "";
@@ -21,18 +19,25 @@ class Layout {
 
 		$left_block_html = "";
 		$main_block_html = "";
-		$sub_block_html  = "";
+		$head_block_html = "";
+		$sub_block_html = "";
 
 		foreach($page->blocks as $block) {
 			switch($block->section) {
 				case "left":
 					$left_block_html .= $block->get_html(true);
 					break;
+				case "head":
+					$head_block_html .= $block->body;
+					break;
 				case "main":
 					$main_block_html .= $block->get_html(false);
 					break;
+				case "main_hide": //allow hiding certain main blocks
+					$main_block_html .= $block->get_html(true);
+					break;
 				case "subheading":
-					$sub_block_html .= $block->get_html(false);
+					$sub_block_html .= $block->body; // $this->block_to_html($block, true);
 					break;
 				default:
 					print "<p>error: {$block->header} using an unknown section ({$block->section})";
@@ -43,6 +48,7 @@ class Layout {
 		$debug = get_debug_info();
 
 		$contact = empty($contact_link) ? "" : "<br><a href='mailto:$contact_link'>Contact</a>";
+		/*$subheading = empty($page->subheading) ? "" : "<div id='subtitle'>{$page->subheading}</div>"; */
 
 		$wrapper = "";
 		if(strlen($page->heading) > 100) {
@@ -53,6 +59,7 @@ class Layout {
 		$flash_html = "";
 		if($flash) {
 			$flash_html = "<b id='flash'>".nl2br(html_escape($flash))." <a href='#' onclick=\"\$('#flash').hide(); return false;\">[X]</a></b>";
+			set_prefixed_cookie("flash_message", "", -1, "/");
 		}
 
 		print <<<EOD
@@ -69,10 +76,11 @@ $header_html
 	<body>
 		<header>
 			<h1$wrapper>{$page->heading}</h1>
+			$head_block_html
 			$sub_block_html
 		</header>
 		<nav>
-			$left_block_html	
+			$left_block_html
 		</nav>
 		<article>
 			$flash_html
