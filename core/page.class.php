@@ -335,7 +335,7 @@ class Page {
 
 		$css_files = array();
 		$css_latest = 0;
-		foreach(array_merge(zglob("lib/*.css"), zglob("ext/*/style.css"), zglob("themes/$theme_name/style.css")) as $css) {
+		foreach(array_merge(zglob("lib/*.css"), zglob("ext/{".ENABLED_EXTS."}/style.css"), zglob("themes/$theme_name/style.css")) as $css) {
 			$css_files[] = $css;
 			$css_latest = max($css_latest, filemtime($css));
 		}
@@ -355,7 +355,7 @@ class Page {
 
 		$js_files = array();
 		$js_latest = 0;
-		foreach(array_merge(zglob("lib/*.js"), zglob("ext/*/script.js"), zglob("themes/$theme_name/script.js")) as $js) {
+		foreach(array_merge(zglob("lib/*.js"), zglob("ext/{".ENABLED_EXTS."}/script.js"), zglob("themes/$theme_name/script.js")) as $js) {
 			$js_files[] = $js;
 			$js_latest = max($js_latest, filemtime($js));
 		}
