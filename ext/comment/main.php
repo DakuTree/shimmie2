@@ -149,15 +149,22 @@ class CommentList extends Extension {
 		if($event->page_matches("comment")) {
 			if($event->get_arg(0) === "add") {
 				if(isset($_POST['image_id']) && isset($_POST['comment'])) {
+					$i_iid = int_escape($_POST['image_id']);
 					try {
-						$i_iid = int_escape($_POST['image_id']);
 						$cpe = new CommentPostingEvent($_POST['image_id'], $user, $_POST['comment']);
 						send_event($cpe);
 						$page->set_mode("redirect");
 						$page->set_redirect(make_link("post/view/$i_iid#comment_on_$i_iid"));
 					}
 					catch(CommentPostingException $ex) {
-						$this->theme->display_error(403, "Comment Blocked", $ex->getMessage());
+						$message = $ex->getMessage();
+						if($message !== "The image does not exist") {
+							flash_message("Comment Blocked: ".$ex->getMessage());
+							$page->set_mode("redirect");
+							$page->set_redirect(make_link("post/view/$i_iid"));
+						} else {
+							$this->theme->display_error(403, "Comment Blocked", $message);
+						}
 					}
 				}
 			}
