@@ -323,7 +323,7 @@ class Index extends Extension {
 		if(preg_match("/^tags([:]?<|[:]?>|[:]?<=|[:]?>=|[:|=])(\d+)$/i", $event->term, $matches)) {
 			$cmp = ltrim($matches[1], ":") ?: "=";
 			$tags = $matches[2];
-			$event->add_querylet(new Querylet('images.id IN (SELECT DISTINCT image_id FROM image_tags GROUP BY image_id HAVING count(image_id) '.$cmp.' '.$tags.')'));
+			$event->add_querylet(new Querylet('EXISTS (SELECT 1 FROM image_tags WHERE images.id = image_tags.image_id GROUP BY image_id HAVING count(image_id) '.$cmp.' '.$tags.')'));
 		}
 		else if(preg_match("/^ratio([:]?<|[:]?>|[:]?<=|[:]?>=|[:|=])(\d+):(\d+)$/i", $event->term, $matches)) {
 			$cmp = preg_replace('/^:/', '=', $matches[1]);
