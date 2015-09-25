@@ -561,6 +561,7 @@ class Image {
 	 * Set the tags for this image.
 	 *
 	 * @param string[] $tags
+	 * @throws Exception
 	 */
 	public function set_tags($tags) {
 		assert('is_array($tags) && count($tags) > 0', var_export($tags, true));
@@ -918,6 +919,8 @@ class Image {
 	/**
 	 * this function exists because mysql is a turd, see the docs for
 	 * build_accurate_search_querylet() for a full explanation
+	 *
+	 * @param array $terms
 	 */
 	private static function build_ugly_search_querylet($terms) {
 		global $database;
@@ -1168,6 +1171,7 @@ class Tag {
 	 */
 	public static function resolve_alias($tag) {
 		assert('is_string($tag)');
+		global $database;
 
 		$negative = false;
 		if(!empty($tag) && ($tag[0] == '-')) {
@@ -1175,14 +1179,18 @@ class Tag {
 			$tag = substr($tag, 1);
 		}
 
-		global $database;
+
 		$newtag = $database->get_one(
 			$database->scoreql_to_sql("SELECT newtag FROM aliases WHERE SCORE_STRNORM(oldtag)=SCORE_STRNORM(:tag)"),
-			array("tag"=>$tag));
+			array("tag"=>$tag)
+		);
+
 		if(empty($newtag)) {
+			//tag has no alias, use old tag
 			$newtag = $tag;
 		}
-		return $negative ? "-$newtag" : $newtag;
+
+		return !$negative ? $newtag : preg_replace("/(\S+)/", "-$1", $newtag);
 	}
 
 	/**
@@ -1274,27 +1282,28 @@ function move_upload_to_archive(DataUploadEvent $event) {
  * Add a directory full of images
  *
  * @param $base string
- * @return string
+ * @return array
  */
 function add_dir(/*string*/ $base) {
-    $list = "";
+    $results = array();
 
     foreach(list_files($base) as $full_path) {
         $short_path = str_replace($base, "", $full_path);
         $filename = basename($full_path);
 
         $tags = path_to_tags($short_path);
-        $list .= "<br>".html_escape("$short_path (".str_replace(" ", ", ", $tags).")... ");
+        $result = "$short_path (".str_replace(" ", ", ", $tags).")... ";
         try {
             add_image($full_path, $filename, $tags);
-            $list .= "ok\n";
+            $result .= "ok";
         }
         catch(UploadException $ex) {
-            $list .= "failed: ".$ex->getMessage()."\n";
+            $result .= "failed: ".$ex->getMessage();
         }
+        $results[] = $result;
     }
 
-    return $list;
+    return $results;
 }
 
 /**

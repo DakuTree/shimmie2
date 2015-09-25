@@ -303,7 +303,7 @@ function validate_input($inputs) {
 		else if(in_array('user_class', $flags)) {
 			global $_shm_user_classes;
 			if(!array_key_exists($value, $_shm_user_classes)) {
-				throw new InvalidInput("Invalid user class: ".html_escape($class));
+				throw new InvalidInput("Invalid user class: ".html_escape($value));
 			}
 			$outputs[$key] = $value;
 		}
@@ -629,7 +629,6 @@ function is_https_enabled() {
  * from the "Amazon S3 PHP class" which is Copyright (c) 2008, Donovan Schönknecht
  * and released under the 'Simplified BSD License'.
  *
- * @internal Used to get mime types
  * @param string &$file File path
  * @param string $ext
  * @param bool $list
@@ -1195,6 +1194,8 @@ function ip_in_range($IP, $CIDR) {
  *
  * from a patch by Christian Walde; only intended for use in the
  * "extension manager" extension, but it seems to fit better here
+ *
+ * @param string $f
  */
 function deltree($f) {
 	//Because Windows (I know, bad excuse)
@@ -1238,6 +1239,9 @@ function deltree($f) {
  * Copy an entire file hierarchy
  *
  * from a comment on http://uk.php.net/copy
+ *
+ * @param string $source
+ * @param string $target
  */
 function full_copy($source, $target) {
 	if(is_dir($source)) {
@@ -1272,39 +1276,40 @@ function full_copy($source, $target) {
  * @return array file list
  */
 function list_files(/*string*/ $base, $_sub_dir="") {
-    assert(is_dir($base));
+	assert(is_dir($base));
 
-    $file_list = array();
+	$file_list = array();
 
-    $files = array();
-    $dir = opendir("$base/$_sub_dir");
-    while($f = readdir($dir)) {
-        $files[] = $f;
-    }
-    closedir($dir);
-    sort($files);
+	$files = array();
+	$dir = opendir("$base/$_sub_dir");
+	while($f = readdir($dir)) {
+		$files[] = $f;
+	}
+	closedir($dir);
+	sort($files);
 
-    foreach($files as $filename) {
-        $full_path = "$base/$_sub_dir/$filename";
+	foreach($files as $filename) {
+		$full_path = "$base/$_sub_dir/$filename";
 
-        if(is_link($full_path)) {
-            // ignore
-        }
-        else if(is_dir($full_path)) {
-            if($filename == "." || $filename == "..") {
-                $file_list = array_merge(
-                    $file_list,
-                    list_files($base, "$_sub_dir/$filename")
-                );
-            }
-        }
-        else {
-            $full_path = str_replace("//", "/", $full_path);
-            $file_list[] = $full_path;
-        }
-    }
+		if(is_link($full_path)) {
+			// ignore
+		}
+		else if(is_dir($full_path)) {
+			if(!($filename == "." || $filename == "..")) {
+				//subdirectory found
+				$file_list = array_merge(
+					$file_list,
+					list_files($base, "$_sub_dir/$filename")
+				);
+			}
+		}
+		else {
+			$full_path = str_replace("//", "/", $full_path);
+			$file_list[] = $full_path;
+		}
+	}
 
-    return $file_list;
+	return $file_list;
 }
 
 
@@ -1361,9 +1366,13 @@ function _set_event_listeners() {
 			// don't do anything
 		}
 		elseif(is_subclass_of($class, "Extension")) {
+			/** @var Extension $extension */
 			$extension = new $class();
 			$extension->i_am($extension);
-			$my_events = array();
+
+			// skip extensions which don't support our current database
+			if(!$extension->is_live()) continue;
+
 			foreach(get_class_methods($extension) as $method) {
 				if(substr($method, 0, 2) == "on") {
 					$event = substr($method, 2) . "Event";
@@ -1404,6 +1413,19 @@ function _dump_event_listeners($event_listeners, $path) {
 	file_put_contents($path, $p);
 }
 
+/**
+ * @param $ext_name string
+ * @return bool
+ */
+function ext_is_live($ext_name) {
+	if (class_exists($ext_name)) {
+		/** @var Extension $ext */
+		$ext = new $ext_name();
+		return $ext->is_live();
+	}
+	return false;
+}
+
 
 /** @private */
 global $_shm_event_count;
@@ -1419,19 +1441,23 @@ function send_event(Event $event) {
 	if(!isset($_shm_event_listeners[get_class($event)])) return;
 	$method_name = "on".str_replace("Event", "", get_class($event));
 
-	ctx_log_start(get_class($event));
+	// send_event() is performance sensitive, and with the number
+	// of times context gets called the time starts to add up
+	$ctx = constant('CONTEXT');
+
+	if($ctx) ctx_log_start(get_class($event));
 	// SHIT: http://bugs.php.net/bug.php?id=35106
 	$my_event_listeners = $_shm_event_listeners[get_class($event)];
 	ksort($my_event_listeners);
 	foreach($my_event_listeners as $listener) {
-		ctx_log_start(get_class($listener));
+		if($ctx) ctx_log_start(get_class($listener));
 		if(method_exists($listener, $method_name)) {
 			$listener->$method_name($event);
 		}
-		ctx_log_endok();
+		if($ctx) ctx_log_endok();
 	}
 	$_shm_event_count++;
-	ctx_log_endok();
+	if($ctx) ctx_log_endok();
 }
 
 

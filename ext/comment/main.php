@@ -25,6 +25,7 @@ class CommentPostingEvent extends Event {
 	 * @param string $comment
 	 */
 	public function __construct($image_id, $user, $comment) {
+		assert('is_numeric($image_id)');
 		$this->image_id = $image_id;
 		$this->user = $user;
 		$this->comment = $comment;
@@ -44,6 +45,7 @@ class CommentDeletionEvent extends Event {
 	 * @param int $comment_id
 	 */
 	public function __construct($comment_id) {
+		assert('is_numeric($comment_id)');
 		$this->comment_id = $comment_id;
 	}
 }
@@ -286,8 +288,6 @@ class CommentList extends Extension {
 	}
 
 	public function onSearchTermParse(SearchTermParseEvent $event) {
-		global $database;
-
 		$matches = array();
 
 		if(preg_match("/^comments([:]?<|[:]?>|[:]?<=|[:]?>=|[:|=])(\d+)$/i", $event->term, $matches)) {
@@ -318,17 +318,14 @@ class CommentList extends Extension {
 	private function build_page(/*int*/ $current_page) {
 		global $database, $user;
 
-		if(class_exists("Ratings")) {
-			$user_ratings = Ratings::get_user_privs($user);
-		} else {
-			$user_ratings = "";
-		}
-
 		$where = SPEED_HAX ? "WHERE posted > now() - interval '24 hours'" : "";
 		
 		$total_pages = $database->cache->get("comment_pages");
 		if(empty($total_pages)) {
-			$total_pages = (int)($database->get_one("SELECT COUNT(c1) FROM (SELECT COUNT(image_id) AS c1 FROM comments $where GROUP BY image_id) AS s1") / 10);
+			$total_pages = (int)($database->get_one("
+				SELECT COUNT(c1)
+				FROM (SELECT COUNT(image_id) AS c1 FROM comments $where GROUP BY image_id) AS s1
+			") / 10);
 			$database->cache->set("comment_pages", $total_pages, 600);
 		}
 		
@@ -342,24 +339,31 @@ class CommentList extends Extension {
 
 		$get_threads = "
 			SELECT image_id,MAX(posted) AS latest
-			FROM comments $where
+			FROM comments
+			$where
 			GROUP BY image_id
 			ORDER BY latest DESC
 			LIMIT :limit OFFSET :offset
 			";
 		$result = $database->Execute($get_threads, array("limit"=>$threads_per_page, "offset"=>$start));
 
+		if(ext_is_live("Ratings")) {
+			$user_ratings = Ratings::get_user_privs($user);
+		} else {
+			$user_ratings = "";
+		}
+
 		$images = array();
 		while($row = $result->fetch()) {
 			$image = Image::by_id($row["image_id"]);
-			if (!is_null($image)) {
-				$comments = $this->get_comments($image->id);
-				if(class_exists("Ratings")) {
-					if(strpos($user_ratings, $image->rating) === FALSE) {
-						$image = null; // this is "clever", I may live to regret it
-					}
+			if(ext_is_live("Ratings") && !is_null($image)) {
+				if(strpos($user_ratings, $image->rating) === FALSE) {
+					$image = null; // this is "clever", I may live to regret it
 				}
-				if(!is_null($image)) $images[] = array($image, $comments);
+			}
+			if(!is_null($image)) {
+				$comments = $this->get_comments($image->id);
+				$images[] = array($image, $comments);
 			}
 		}
 
@@ -447,7 +451,7 @@ class CommentList extends Extension {
 
 // add / remove / edit comments {{{
 	private function is_comment_limit_hit() {
-		global $user, $config, $database;
+		global $config, $database;
 
 		// sqlite fails at intervals
 		if($database->get_driver_name() === "sqlite") return false;
@@ -562,7 +566,7 @@ class CommentList extends Extension {
 	 * @throws CommentPostingException
 	 */
 	private function add_comment_wrapper(/*int*/ $image_id, User $user, /*string*/ $comment) {
-		global $database, $config, $page;
+		global $database, $page;
 
 		if(!$user->can("bypass_comment_checks")) {
 			// will raise an exception if anything is wrong

@@ -1,13 +1,13 @@
 <?php
 /**
  * \page themes Themes
- * 
+ *
  * Each extension has a theme with a specific name -- eg. the extension Setup
  * which is stored in ext/setup/main.php will have a theme called SetupTheme
  * stored in ext/setup/theme.php. If you want to customise it, create a class
  * in the file themes/mytheme/setup.theme.php called CustomSetupTheme which
  * extends SetupTheme and overrides some of its methods.
- * 
+ *
  * Generally an extension should only deal with processing data; whenever it
  * wants to display something, it should pass the data to be displayed to the
  * theme object, and the theme will add the data into the global $page
@@ -65,11 +65,11 @@ class Page {
 	/** @name "data" mode */
 	//@{
 
-	/** @var string */
-	private $data = "";
+	/** @var string; public only for unit test */
+	public $data = "";
 
-	/** @var string */
-	private $filename = null;
+	/** @var string; public only for unit test */
+	public $filename = null;
 
 	/**
 	 * Set the raw data to be sent.
@@ -226,7 +226,7 @@ class Page {
 		}
 		return $data;
 	}
-	
+
 	/**
 	 * Removes all currently set HTML headers (Be careful..).
 	 */
@@ -251,7 +251,8 @@ class Page {
 	 */
 	public function display() {
 		global $page, $user;
-		
+
+		header("HTTP/1.0 {$this->code} Shimmie");
 		header("Content-type: ".$this->type);
 		header("X-Powered-By: SCore-".SCORE_VERSION);
 
@@ -268,7 +269,6 @@ class Page {
 
 		switch($this->mode) {
 			case "page":
-				header("HTTP/1.0 {$this->code} Shimmie");
 				if(CACHE_HTTP) {
 					header("Vary: Cookie, Accept-Encoding");
 					if($user->is_anonymous() && $_SERVER["REQUEST_METHOD"] == "GET") {
@@ -309,16 +309,16 @@ class Page {
 				break;
 		}
 	}
-	
+
 	/**
 	 * This function grabs all the CSS and JavaScript files sprinkled throughout Shimmie's folders,
 	 * concatenates them together into two large files (one for CSS and one for JS) and then stores
 	 * them in the /cache/ directory for serving to the user.
-	 * 
+	 *
 	 * Why do this? Two reasons:
 	 *  1. Reduces the number of files the user's browser needs to download.
 	 *  2. Allows these cached files to be compressed/minified by the admin.
-	 * 
+	 *
 	 * TODO: This should really be configurable somehow...
 	 */
 	public function add_auto_html_headers() {
@@ -333,8 +333,13 @@ class Page {
 		$this->add_html_header("<link rel='icon' type='image/x-icon' href='$data_href/favicon.ico'>", 41);
 		$this->add_html_header("<link rel='apple-touch-icon' href='$data_href/apple-touch-icon.png'>", 42);
 
+		$config_latest = 0;
+		foreach(zglob("data/config/*") as $conf) {
+			$config_latest = max($config_latest, filemtime($conf));
+		}
+
 		$css_files = array();
-		$css_latest = 0;
+		$css_latest = $config_latest;
 		foreach(array_merge(zglob("lib/*.css"), zglob("ext/{".ENABLED_EXTS."}/style.css"), zglob("themes/$theme_name/style.css")) as $css) {
 			$css_files[] = $css;
 			$css_latest = max($css_latest, filemtime($css));
@@ -354,7 +359,7 @@ class Page {
 		$this->add_html_header("<link rel='stylesheet' href='$data_href/$css_cache_file' type='text/css'>", 43);
 
 		$js_files = array();
-		$js_latest = 0;
+		$js_latest = $config_latest;
 		foreach(array_merge(zglob("lib/*.js"), zglob("ext/{".ENABLED_EXTS."}/script.js"), zglob("themes/$theme_name/script.js")) as $js) {
 			$js_files[] = $js;
 			$js_latest = max($js_latest, filemtime($js));
@@ -373,4 +378,3 @@ class Page {
 
 class MockPage extends Page {
 }
-
