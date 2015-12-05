@@ -154,7 +154,7 @@ class ImageHistory extends Extension {
 		//TODO: Init post history at upload date, to avoid it looking like new post in /all
 
 		//TODO: Send history event instead.
-		if($config->get_bool("ext_imagehistory_tags")) $this->add_tag_history($image, $image->get_tag_array(), TRUE);
+		if($config->get_bool("ext_imagehistory_tags"))   $this->add_tag_history($image, $image->get_tag_array(), TRUE);
 		if($config->get_bool("ext_imagehistory_source")) $this->add_source_history($image, $image->source, TRUE);
 	}
 
@@ -184,17 +184,23 @@ class ImageHistory extends Extension {
 			$database->execute("
 				INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
 				VALUES (?, ?, ?, ?)",
-				array($history_id, $this->events, 'tags', $old_taglist));
+				array($history_id, $this->events, 'tags', $old_taglist)
+			);
 		}
 
-		$diff = array_merge(array("unchanged" => array_intersect($new_tags, $old_tags)), array("removed" => array_diff($old_tags, $new_tags)), array("added" => array_diff($new_tags, $old_tags)));
+		$diff = array_merge(
+			array("unchanged" => array_intersect($new_tags, $old_tags)),
+			array("removed"   => array_diff($old_tags, $new_tags)),
+			array("added"     => array_diff($new_tags, $old_tags))
+		);
 
 		//add a history event
 		$this->events++;
 		$database->execute("
 			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2, custom3)
 			VALUES (?, ?, ?, ?, ?, ?)",
-			array($history_id, $this->events, 'tags', Tag::implode($diff['unchanged']), (Tag::implode($diff['added']) ?: NULL), (Tag::implode($diff['removed']) ?: NULL)));
+			array($history_id, $this->events, 'tags', Tag::implode($diff['unchanged']), (Tag::implode($diff['added']) ?: NULL), (Tag::implode($diff['removed']) ?: NULL))
+		);
 
 		if($config->get_bool("ext_imagehistory_logdb_tags")) log_debug("image_history", "TagHistory: [{$old_taglist}] -> [{$new_taglist}]", false, array("image_id" => $image->id));
 
@@ -224,7 +230,8 @@ class ImageHistory extends Extension {
 			$database->execute("
 				INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
 				VALUES (?, ?, ?, ?)",
-				array($history_id, $this->events, 'source', $old_source));
+				array($history_id, $this->events, 'source', $old_source)
+			);
 		}
 
 		//add a history event
@@ -232,7 +239,8 @@ class ImageHistory extends Extension {
 		$database->execute("
 			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2)
 			VALUES (?, ?, ?, ?, ?)",
-			array($history_id, $this->events, 'source', $new_source, $old_source));
+			array($history_id, $this->events, 'source', $new_source, $old_source)
+		);
 
 		if($config->get_bool("ext_imagehistory_logdb_source")) log_debug("image_history", "SourceHistory: [{$old_source}] -> [{$new_source}]", false, array("image_id" => $image->id));
 
@@ -255,7 +263,8 @@ class ImageHistory extends Extension {
 		$database->execute("
 			INSERT INTO ext_imagehistory (image_id, user_id, user_ip, timestamp)
 			VALUES (?, ?, ?, current_timestamp)",
-			array($image_id, $user->id, $_SERVER['REMOTE_ADDR']));
+			array($image_id, $user->id, $_SERVER['REMOTE_ADDR'])
+		);
 
 		$this->history_id = $database->get_last_insert_id(NULL);
 	}
@@ -278,7 +287,8 @@ class ImageHistory extends Extension {
 				JOIN users ON eih.user_id = users.id
 				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
 				ORDER BY eih.id DESC, eihe.event_id DESC",
-				array("id" => $image_id, "limit"=>$limit, "offset"=>$offset));
+				array("id" => $image_id, "limit"=>$limit, "offset"=>$offset)
+			);
 
 			if($row) {
 				//history exists, set variables then end loop
@@ -308,12 +318,13 @@ class ImageHistory extends Extension {
 		$offset = (($pageN-1) * $limit);
 
 		$row = $database->get_all("
-				SELECT eih.image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
-				FROM (SELECT * FROM ext_imagehistory ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
-				JOIN users ON eih.user_id = users.id
-				JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
-				ORDER BY eih.id DESC, eihe.event_id DESC",
-				array("limit"=>$limit, "offset"=>$offset));
+			SELECT eih.image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
+			FROM (SELECT * FROM ext_imagehistory ORDER BY id DESC LIMIT :limit OFFSET :offset) eih
+			JOIN users ON eih.user_id = users.id
+			JOIN ext_imagehistory_events eihe ON eihe.history_id = eih.id
+			ORDER BY eih.id DESC, eihe.event_id DESC",
+			array("limit"=>$limit, "offset"=>$offset)
+		);
 
 		$total_pages = ceil($database->get_one("SELECT COUNT(*)	FROM ext_imagehistory") / $limit);
 
