@@ -267,6 +267,7 @@ class ImageHistory extends Extension {
 		);
 
 		$this->history_id = $database->get_last_insert_id(NULL);
+		$this->events     = 0;
 	}
 
 	/** get_history functions **/
