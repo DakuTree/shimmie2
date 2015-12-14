@@ -24,7 +24,7 @@ class ImageHistoryTheme extends Themelet {
 		$history_html = "
 			<table class='zebra' id='imagehistory'>
 				<thead>
-					<th width='5%'>Post</th>
+					<th width='10%'>Post</th>
 					<th width='75px'>Date</th>
 					<th width='10%'>User</th>
 					".($user->can("view_ip") ? "<th width='10%'>IP Address</th>" : "")."
