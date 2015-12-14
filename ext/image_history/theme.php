@@ -4,11 +4,9 @@ class ImageHistoryTheme extends Themelet {
 	public function get_history_link_html(/*int*/ $image_id) {
 		//FIXME: tempfix // make_form changes never got merged, so we need to manually recreate it here to avoid ugly urls || SEE #482
 		$action    = make_link("image_history/{$image_id}");
-		$nice_urls = (strpos($action, '?q=') !== false ? substr($action, strpos($action, '?q=') + 3) : "");
 
 		$html = "
-			<form action='{$action}' method='GET'>
-				{$nice_urls}
+			".make_form($action)."
 				<input type='submit' value='View Image History'>
 			</form>
 		";
