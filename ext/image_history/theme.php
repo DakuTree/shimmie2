@@ -36,7 +36,7 @@ class ImageHistoryTheme extends Themelet {
 		foreach($new_history as $events) {
 			//NOTE: We would use show_ip here, but it adds some links which may not work if IP ban ext is not enabled
 			$uname = "<a href='".make_link("user/".url_escape($events[0]['name']))."'>".html_escape($events[0]['name'])."</a>";
-			$uip   = ($user->can("view_ip") ? "<td>".$events[0]['user_ip']."</td>" : "");
+			$uip   = ($user->can("view_ip") ? "<td>".($events[0]['user_ip'] == '::1' ? 'localhost' : $events[0]['user_ip'])."</td>" : "");
 
 			$event_html = "
 					<tr id='post-{$events[0]['image_id']}-{$events[0]['history_id']}'>
