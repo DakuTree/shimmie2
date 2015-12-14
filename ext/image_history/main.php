@@ -6,7 +6,6 @@
  *              Tag & Source history are implemented by default (toggleable)
  *
  *              TODO: Extension support. Rating, Parent, Pools etc.
- *                    Revert/undo tags.
  *                    Reset history.
  *                    Fix history.
  *                    Import from tag/source history.
@@ -76,10 +75,16 @@ class ImageHistory extends Extension {
 	// }
 
 	public function onPageRequest(PageRequestEvent $event) {
-		global $page;
+		global $page, $user;
 		//TODO: Find a better way to do this.
-		if($event->page_matches("image_history/revert")) {
-			if(isset($_POST['image_id'])){}
+		if($event->page_matches("image_history/revert") && $user->can("edit_image_tag")) {
+			$image_id   = int_escape($event->get_arg(0));
+			$history_id = int_escape($event->get_arg(1));
+
+			$this->revert_history($image_id, $history_id);
+
+			$page->set_mode("redirect");
+			$page->set_redirect(make_link("image_history/all"));
 		}
 		else if($event->page_matches("image_history/all")) {
 			$pageN = int_escape($event->get_arg(0)) ?: 1;
@@ -280,7 +285,7 @@ class ImageHistory extends Extension {
 		$data = array();
 		$total_pages = 0;
 
-		//CHECK: Unsure if while is needed here, it just seemed like the best way to avoid duplicate code..
+		//CHECK: Unsure if this is safe, it just seemed like the best way to avoid duplicate code..
 		while(TRUE) {
 			$row = $database->get_all("
 				SELECT :id AS image_id, eihe.*, eih.timestamp, eih.user_id, eih.user_ip, users.name
@@ -330,6 +335,41 @@ class ImageHistory extends Extension {
 		$total_pages = ceil($database->get_one("SELECT COUNT(*)	FROM ext_imagehistory") / $limit);
 
 		return ($row ? array("data"=>$row, "total_pages"=>$total_pages) : array("data"=>array(), "total_pages"=>0));
+	}
+
+	/** revert_history functions **/
+	protected function revert_history(/*int*/ $image_id, /*int*/ $history_id) {
+		global $database;
+
+		if($image = Image::by_id($image_id)) {
+			$rows = $database->get_all("
+				SELECT `type`, custom1, custom2, custom3
+				FROM ext_imagehistory_events
+				WHERE history_id = :history_id",
+				array("history_id"=>$history_id)
+			);
+
+			$tagArray = array();
+			foreach($rows as $row) {
+				switch($row['type']) {
+					case 'tags':
+						$tagArray = array_merge($tagArray, explode(" ", $row['custom1'])); //unchanged tags
+						$tagArray = array_merge($tagArray, explode(" ", $row['custom2'])); //new tags
+						break;
+					case 'source':
+						$row['custom1'] = "source:".$row['custom1'] ? : "";
+						$row['custom2'] = "source:".$row['custom2'] ? : "";
+						$tagArray = array_merge($tagArray, explode(" ", $row['custom1'] ?: $row['custom2'])); //source, if exists
+						break;
+				}
+			}
+
+			if(!empty(array_filter($tagArray))) { send_event(new TagSetEvent($image,implode(" ", array_filter($tagArray)))); }
+
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
 }
 

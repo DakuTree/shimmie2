@@ -81,10 +81,11 @@ class ImageHistoryTheme extends Themelet {
 			foreach($tag_list_r as $tag){ $event_html .= "<del><a href='".make_link("post/list/$tag/1")."'>{$tag}</a></del>";  }
 			foreach($tag_list as $tag){   $event_html .= "<span><a href='".make_link("post/list/$tag/1")."'>{$tag}</a></span> "; }
 
-			$event_html .= "</td>
+			$event_html .= "</td>".
+						($user->is_admin() ? "
 						<td>
-							ACTIONS <!-- TODO: Sort this -->
-						</td>
+							<a href='".make_link("image_history/revert/{$events[0]['image_id']}/{$events[0]['history_id']}")."'>Revert to</a>
+						</td>" : "")."
 					</tr>";
 
 			$history_html .= $event_html;
