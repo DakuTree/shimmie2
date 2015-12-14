@@ -83,8 +83,7 @@ class ImageHistoryTheme extends Themelet {
 			foreach($tag_list_r as $tag){ $event_html .= "<del><a href='".make_link("post/list/$tag/1")."'>{$tag}</a></del>";  }
 			foreach($tag_list as $tag){   $event_html .= "<span><a href='".make_link("post/list/$tag/1")."'>{$tag}</a></span> "; }
 
-			$event_html .= "
-						</td>
+			$event_html .= "</td>
 						<td>
 							ACTIONS <!-- TODO: Sort this -->
 						</td>
