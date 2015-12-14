@@ -266,7 +266,7 @@ class ImageHistory extends Extension {
 			array($image_id, $user->id, $_SERVER['REMOTE_ADDR'])
 		);
 
-		$this->history_id = $database->get_last_insert_id(NULL);
+		$this->history_id = $database->get_last_insert_id('ext_imagehistory_id_seq');
 		$this->events     = 0;
 	}
 
