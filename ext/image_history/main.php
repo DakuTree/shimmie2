@@ -11,6 +11,7 @@
  *                    Import from tag/source history.
  *                    Image deletion history? (Unsure how possible this would be as image history is removed on deletion)
  *                    User restrictions.
+ *                    Bulk Revert (See tag_history)
  */
 
 class ImageHistory extends Extension {
@@ -364,7 +365,8 @@ class ImageHistory extends Extension {
 				}
 			}
 
-			if(!empty(array_filter($tagArray))) { send_event(new TagSetEvent($image,implode(" ", array_filter($tagArray)))); }
+			$tagList = implode(" ", array_filter($tagArray));
+			if(!empty($tagList)) { send_event(new TagSetEvent($image, $tagList)); }
 
 			return TRUE;
 		} else {
