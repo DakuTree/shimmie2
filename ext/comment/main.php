@@ -575,10 +575,8 @@ class CommentList extends Extension {
 	private function add_comment_wrapper(/*int*/ $image_id, User $user, /*string*/ $comment) {
 		global $database, $page;
 
-		if(!$user->can("bypass_comment_checks")) {
-			// will raise an exception if anything is wrong
-			$this->comment_checks($image_id, $user, $comment);
-		}
+		// will raise an exception if anything is wrong
+		$this->comment_checks($image_id, $user, $comment);
 
 		// all checks passed
 		if($user->is_anonymous()) {
@@ -604,45 +602,54 @@ class CommentList extends Extension {
 	private function comment_checks(/*int*/ $image_id, User $user, /*string*/ $comment) {
 		global $config, $page;
 
-		// basic sanity checks
-		if(!$user->can("create_comment")) {
-			throw new CommentPostingException("Anonymous posting has been disabled");
-		}
-		else if(is_null(Image::by_id($image_id))) {
-			throw new CommentPostingException("The image does not exist");
+		if(is_null(Image::by_id($image_id))) {
+				throw new CommentPostingException("The image does not exist");
 		}
 		else if(trim($comment) == "") {
 			throw new CommentPostingException("Comments need text...");
 		}
-		else if(strlen($comment) > 9000) {
-			throw new CommentPostingException("Comment too long~");
-		}
 
-		// advanced sanity checks
-		else if(strlen($comment)/strlen(gzcompress($comment)) > 10) {
-			throw new CommentPostingException("Comment too repetitive~");
-		}
-		else if($user->is_anonymous() && !$this->hash_match()) {
-			$page->add_cookie("nocache", "Anonymous Commenter", time()+60*60*24, "/");
-			throw new CommentPostingException(
-					"Comment submission form is out of date; refresh the ".
-					"comment form to show you aren't a spammer~");
-		}
+		if(!$user->can("bypass_comment_checks")) {
+			// basic sanity checks
+			if(!$user->can("create_comment")) {
+				throw new CommentPostingException("Anonymous posting has been disabled");
+			}
+			else if(is_null(Image::by_id($image_id))) {
+				throw new CommentPostingException("The image does not exist");
+			}
+			else if(trim($comment) == "") {
+				throw new CommentPostingException("Comments need text...");
+			}
+			else if(strlen($comment) > 9000) {
+				throw new CommentPostingException("Comment too long~");
+			}
 
-		// database-querying checks
-		else if($this->is_comment_limit_hit()) {
-			throw new CommentPostingException("You've posted several comments recently; wait a minute and try again...");
-		}
-		else if($this->is_dupe($image_id, $comment)) {
-			throw new CommentPostingException("Someone already made that comment on that image -- try and be more original?");
-		}
+			// advanced sanity checks
+			else if(strlen($comment)/strlen(gzcompress($comment)) > 10) {
+				throw new CommentPostingException("Comment too repetitive~");
+			}
+			else if($user->is_anonymous() && !$this->hash_match()) {
+				$page->add_cookie("nocache", "Anonymous Commenter", time()+60*60*24, "/");
+				throw new CommentPostingException(
+						"Comment submission form is out of date; refresh the ".
+						"comment form to show you aren't a spammer~");
+			}
 
-		// rate-limited external service checks last
-		else if($config->get_bool('comment_captcha') && !captcha_check()) {
-			throw new CommentPostingException("Error in captcha");
-		}
-		else if($user->is_anonymous() && $this->is_spam_akismet($comment)) {
-			throw new CommentPostingException("Akismet thinks that your comment is spam. Try rewriting the comment, or logging in.");
+			// database-querying checks
+			else if($this->is_comment_limit_hit()) {
+				throw new CommentPostingException("You've posted several comments recently; wait a minute and try again...");
+			}
+			else if($this->is_dupe($image_id, $comment)) {
+				throw new CommentPostingException("Someone already made that comment on that image -- try and be more original?");
+			}
+
+			// rate-limited external service checks last
+			else if($config->get_bool('comment_captcha') && !captcha_check()) {
+				throw new CommentPostingException("Error in captcha");
+			}
+			else if($user->is_anonymous() && $this->is_spam_akismet($comment)) {
+				throw new CommentPostingException("Akismet thinks that your comment is spam. Try rewriting the comment, or logging in.");
+			}
 		}
 	}
 // }}}
