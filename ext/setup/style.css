@@ -15,7 +15,7 @@
 	-moz-column-break-inside: avoid;
 	-webkit-column-break-inside: avoid;
 	text-align: center;
-	width: 90%;
+	width: auto;
 }
 .setupblock TEXTAREA {
 	width: 100%;

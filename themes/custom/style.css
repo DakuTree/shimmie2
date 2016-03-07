@@ -1,0 +1,232 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                  things common to all pages                    *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+body {
+  background: #eeeeee;
+  font-family: sans-serif;
+  font-size: 14px;
+  margin: 0px;
+}
+body > header {
+  background: #dddddd;
+  border-bottom: 1px solid #aaaaaa;
+  max-height: 34px;
+  padding: 0 8px 8px 8px;
+  margin: 0 0 36px 0;
+  text-align: center;
+}
+body > header > h1 {
+  max-height: 34px;
+  overflow-y: auto;
+  border: 0;
+  margin: 0;
+  padding: 4px;
+}
+body > header > * {
+  background: #dddddd;
+  border: 1px solid #aaaaaa;
+  border-top: 0;
+  margin-top: 1px;
+  padding: 3px 0;
+}
+body > header > * a {
+  font-weight: bold;
+}
+body > header > * a:visited {
+  color: blue;
+}
+body > nav #Navigationleft > h3 {
+  margin-top: 0;
+}
+body > article {
+  margin-top: 0;
+}
+body > article h3[data-toggle-sel="#image-list"] {
+  margin-left: 0;
+  margin-right: 0;
+}
+header {
+  text-align: center;
+  padding: 8px;
+}
+h1 {
+  text-align: center;
+}
+h1 a {
+  color: black;
+}
+h3 {
+  text-align: center;
+  margin: 0px;
+}
+section > h3 {
+  background: #cccccc;
+  border: 1px solid #bbbbbb;
+}
+SECTION > .blockbody,
+.comment,
+.setupblock {
+  background: #dddddd;
+  border: 1px solid #cccccc;
+}
+SECTION > .blockbody,
+H3,
+SECTION > H3,
+FOOTER,
+.comment,
+.setupblock {
+  margin: 8px;
+  padding: 8px;
+}
+THEAD {
+  font-weight: bold;
+}
+TD {
+  vertical-align: top;
+  text-align: center;
+}
+TABLE.zebra {
+  border-spacing: 0px;
+  border: 2px solid #CCC;
+}
+TABLE.zebra TD,
+TABLE.zebra TH {
+  vertical-align: middle;
+  padding: 4px;
+}
+TABLE.zebra THEAD TD,
+TABLE.zebra THEAD TH {
+  border-bottom: 2px solid #CCC;
+}
+TABLE.zebra TFOOT TD,
+TABLE.zebra TFOOT TH {
+  border-top: 2px solid #CCC;
+}
+TABLE.zebra TR TD {
+  border-bottom: 1px solid #DDD;
+}
+TABLE.zebra TR:nth-child(odd) {
+  background: #EFEFEF;
+}
+TABLE.zebra TR:nth-child(even) {
+  background: #E0E0E0;
+}
+FOOTER {
+  background: #bbbbbb;
+  border: 1px solid #aaaaaa;
+  clear: both;
+  font-size: 0.7em;
+  text-align: center;
+}
+A {
+  text-decoration: none;
+}
+A:hover {
+  text-decoration: underline;
+}
+UL {
+  text-align: left;
+}
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*             the navigation bar, and all its blocks             *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+nav {
+  width: 200px;
+  float: left;
+  text-align: center;
+  margin-left: 16px;
+}
+nav .blockbody {
+  font-size: 0.85em;
+  text-align: center;
+  overflow: hidden;
+}
+nav table,
+nav input,
+nav select {
+  width: 100%;
+}
+nav input,
+nav select {
+  padding: 0px;
+}
+.more:after {
+  content: " >>>";
+}
+.tag_count:before {
+  content: "(";
+}
+.tag_count:after {
+  content: ")";
+}
+#paginator .blockbody {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                 the main part of each page                     *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ARTICLE {
+  margin-left: 226px;
+  margin-right: 16px;
+  margin-top: 16px;
+  text-align: center;
+  height: 1%;
+}
+ARTICLE TABLE {
+  width: 90%;
+  margin: auto;
+}
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                     specific page types                        *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+#pagelist {
+  margin-top: 32px;
+}
+.thumb {
+  width: 226px;
+  display: inline-block;
+  zoom: 1;
+  /* ie6 */
+  *display: inline;
+  /* ie6 */
+  text-align: center;
+  margin-bottom: 8px;
+  margin-right: -9px;
+  margin-left: -4px;
+}
+.thumb img {
+  background: #dddddd;
+  border: 1px solid #cccccc;
+  padding: 8px;
+}
+/* Fix vertical alignment of checkboxes */
+input[type=checkbox] {
+  vertical-align: middle;
+  position: relative;
+  bottom: 1px;
+  margin-top: 4px;
+}
+/* * * CUSTOM * * */
+.style-round SECTION > .blockbody,
+.style-round H1,
+.style-round SECTION > H3,
+.style-round FOOTER,
+.style-round .comment,
+.style-round .setupblock,
+.style-round .thumb IMG {
+  border-radius: 12px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+}
+.style-flat {
+  /* Nothing to do here? */
+}
+H1 {
+  margin: 0px;
+  padding: 0px;
+}
+input {
+  margin: auto;
+  padding: auto;
+}

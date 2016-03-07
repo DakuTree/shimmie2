@@ -1,42 +1,106 @@
+// VARIABLES
+@colorBG         : #EEE;
+
+@colorMain       : #BBB; //This is the main colour for the site. All colours will be based off this.
+@colorSecondary  : lighten(@colorMain, 6.5%); //#CCC
+@colorTertiary   : darken(@colorMain,  6.5%); //#AAA
+@colorQuaternary : lighten(@colorMain, 13.5%); //#DDD
+
+// MIXINS
+.mixin-blockstyle-main() {
+	background: @colorMain;
+	border: 1px solid @colorTertiary;
+}
+.mixin-blockstyle-sub() {
+	background: @colorSecondary;
+	border: 1px solid @colorMain;
+}
+.mixin-blockstyle-tri() {
+	background: @colorQuaternary;
+	border: 1px solid @colorSecondary;
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                  things common to all pages                    *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-BODY {
-	background: #EEE;
+body {
+	background: @colorBG;
 	font-family: sans-serif;
 	font-size: 14px;
 	margin: 0px;
+
+	& > header {
+		background: @colorQuaternary;
+		border-bottom: 1px solid @colorTertiary;
+
+		max-height: 34px;
+		padding: 0 8px 8px 8px;
+		margin: 0 0 36px 0;
+
+		text-align: center;
+
+		& > h1 {
+			max-height: 34px;
+			overflow-y: auto;
+			border: 0;
+			margin: 0;
+			padding: 4px;
+		}
+
+		& > * {
+			background: @colorQuaternary;
+			border: 1px solid @colorTertiary;
+			border-top: 0;
+
+			margin-top: 1px;
+
+			padding: 3px 0;
+			a {font-weight: bold}
+			a:visited {
+				color: blue;
+			}
+		}
+	}
+
+	& > nav {
+		#Navigationleft > h3 { margin-top: 0 }
+	}
+
+	& > article {
+		margin-top: 0; //Make left nav bar aligned with article
+
+		h3[data-toggle-sel="#image-list"] {
+			margin-left: 0;
+			margin-right: 0;
+		}
+	}
 }
-H1 {
-	background: #BBB;
+
+header { text-align: center; padding: 8px }
+
+h1 {
 	text-align: center;
-	border: 1px solid #AAA;
+
+	a { color: black }
 }
-H1 A {
-	color: black;
-}
-H3 {
+
+h3 {
 	text-align: center;
 	margin: 0px;
 }
-SECTION>H3 {
-	background: #CCC;
-	border: 1px solid #BBB;
+
+section {
+	& > h3 {
+		.mixin-blockstyle-sub();
+	}
 }
+
 SECTION>.blockbody, .comment, .setupblock {
-	background: #DDD;
-	border: 1px solid #CCC;
+	.mixin-blockstyle-tri();
 }
-SECTION>.blockbody, H1, SECTION>H3, FOOTER, .comment, .setupblock {
+SECTION>.blockbody, H3, SECTION>H3, FOOTER, .comment, .setupblock {
 	margin: 8px;
 	padding: 8px;
-	border-radius: 12px; /* standard, webkit, opera */
-	-moz-border-radius: 12px; /* mozilla haven't committed yet */
-	box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* standard, opera */
-	-webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* webkit haven't committed yet */
-	-moz-box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* mozilla haven't committed yet */
 }
 THEAD {
 	font-weight: bold;
@@ -55,11 +119,10 @@ TABLE.zebra TR:nth-child(odd) {background: #EFEFEF;}
 TABLE.zebra TR:nth-child(even) {background: #E0E0E0;}
 
 FOOTER {
+	.mixin-blockstyle-main();
 	clear: both;
 	font-size: 0.7em;
 	text-align: center;
-	background: #BBB;
-	border: 1px solid #AAA;
 }
 
 A {text-decoration: none;}
@@ -69,47 +132,33 @@ UL {
 	text-align: left;
 }
 
-body > header > h1 {
-	max-height: 34px;
-	overflow-y: auto;
-}
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *             the navigation bar, and all its blocks             *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-NAV {
+nav {
 	width: 200px;
 	float: left;
 	text-align: center;
 	margin-left: 16px;
-}
-NAV .blockbody {
-	font-size: 0.85em;
-	text-align: center;
-	overflow: hidden;
-}
-NAV TABLE {
-	width: 100%;
-}
-NAV INPUT {
-	width: 100%;
-	padding: 0px;
-}
-NAV SELECT {
-	width: 100%;
-	padding: 0px;
+
+	.blockbody {
+		font-size: 0.85em;
+		text-align: center;
+		overflow: hidden;
+	}
+
+	table, input, select { width: 100% }
+	input, select { padding: 0px }
 }
 
 .more:after {
 	content: " >>>";
 }
 
-.tag_count:before {
-	content: "(";
-}
-.tag_count:after {
-	content: ")";
+.tag_count {
+	&:before { content: "(" }
+	&:after  { content: ")" }
 }
 
 #paginator .blockbody {
@@ -150,16 +199,15 @@ ARTICLE TABLE {
 	*display: inline; /* ie6 */
 	text-align: center;
 	margin-bottom: 8px;
-}
-.thumb IMG {
-	border: 1px solid #CCC;
-	background: #DDD;
-	padding: 8px;
-	border-radius: 12px; /* standard, webkit, opera */
-	-moz-border-radius: 12px; /* mozilla haven't committed yet */
-	box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* standard, opera */
-	-webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* webkit haven't committed yet */
-	-moz-box-shadow: 2px 2px 6px rgba(0,0,0,0.6); /* mozilla haven't committed yet */
+
+	//hack fix for thumb positioning
+	margin-right: -9px;
+	margin-left: -4px;
+
+	img {
+		.mixin-blockstyle-tri();
+		padding: 8px;
+	}
 }
 
 /* Fix vertical alignment of checkboxes */
@@ -169,3 +217,23 @@ input[type=checkbox] {
 	bottom: 1px;
 	margin-top: 4px;
 }
+
+
+/* * * CUSTOM * * */
+.style-round {
+	SECTION > .blockbody, H1, SECTION > H3, FOOTER, .comment, .setupblock, .thumb IMG {
+		border-radius: 12px;
+		box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+	}
+}
+.style-flat  {
+	/* Nothing to do here? */
+}
+
+H1 {
+	margin: 0px;
+	padding: 0px;
+}
+
+input { margin: auto; padding: auto; }
+
