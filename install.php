@@ -106,10 +106,10 @@ function check_im_version() {
 function eok($name, $value) {
 	echo "<br>$name ... ";
 	if($value) {
-		echo "<font color='green'>ok</font>\n";
+		echo "<span color='green'>ok</span>\n";
 	}
 	else {
-		echo "<font color='red'>failed</font>\n";
+		echo "<span color='red'>failed</span>\n";
 	}
 }
 // }}}
