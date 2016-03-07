@@ -5,6 +5,7 @@
  * Link: http://www.codeanimu.net
  * License: GPLv2
  * Description: Shimmie updater! (Requires admin panel extension & transload engine (cURL/fopen/Wget))
+ * Required Extensions: admin
  */
 class Update extends Extension {
 	public function onInitExt(InitExtEvent $event) {

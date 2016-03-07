@@ -5,6 +5,7 @@
  * Link: http://code.shishnet.org/shimmie2/
  * License: GPLv2
  * Description: Bulk add server-side images
+ * Required Extensions: admin
  * Documentation:
  *  Upload the images into a new directory via ftp or similar, go to
  *  shimmie's admin page and put that directory in the bulk add box.

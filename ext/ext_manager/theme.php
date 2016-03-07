@@ -8,30 +8,65 @@ class ExtManagerTheme extends Themelet {
 				<script type='text/javascript'>
 				$(document).ready(function() {
 					$(\"#extensions\").tablesorter();
+
+					$(\"#extensions\").find(\"> tbody > tr\").each(function() {
+						if($(this).attr('data-required')) {
+							if(!ext_is_enabled($(this).attr('data-required'))) {
+								$(this).find('input[type=checkbox]').parent().css('background-color', 'rgba(255, 0, 0, 0.75)');
+								$(this).find('input[type=checkbox]').attr('disabled', true);
+								$(this).find('input[type=checkbox]').attr('title', 'This requires these extensions to run: '+$(this).attr('data-required'));
+
+							}
+						} else if($(this).attr('data-optional')) {
+							if(!ext_is_enabled($(this).attr('data-optional'))) {
+								$(this).find('input[type=checkbox]').parent().css('background-color', 'rgba(255, 100, 0, 0.75)');
+								$(this).find('input[type=checkbox]').attr('title', 'This extension has optional features which use these extensions: '+$(this).attr('data-required'));
+							}
+						}
+					});
+
+					function ext_is_enabled(name) {
+						var enabled = 0;
+
+						var name_arr = name.split(',');
+						name_arr.forEach(function(n) {
+							enabled = enabled + $(\"#extensions\").find(\"> tbody > tr[data-ext=\"+n+\"] > td:first-of-type > input:checked\").length;
+						});
+
+						return enabled;
+					}
 				});
 				</script>
 				<table id='extensions' class='zebra'>
 					<thead>
-						<tr>$h_en<th>Name</th><th>Description</th></tr>
+						<tr>
+							$h_en
+							<th>Name</th>
+							<th>Docs</th>
+							<th>Description</th>
+						</tr>
 					</thead>
 					<tbody>
 		";
 		foreach($extensions as $extension) {
 			if(!$editable && $extension->visibility == "admin") continue;
 
-			$h_name = html_escape(empty($extension->name) ? $extension->ext_name : $extension->name);
+			$h_name        = html_escape(empty($extension->name) ? $extension->ext_name : $extension->name);
 			$h_description = html_escape($extension->description);
-			if($extension->enabled === TRUE) $h_enabled = " checked='checked'";
-			else if($extension->enabled === FALSE) $h_enabled = "";
-			else $h_enabled = " disabled checked='checked'";
-			$h_link = make_link("ext_doc/".url_escape($extension->ext_name));
+			$h_link        = make_link("ext_doc/".url_escape($extension->ext_name));
+			$h_enabled     = ($extension->enabled === TRUE ? " checked='checked'" : ($extension->enabled === FALSE ? "" : " disabled checked='checked'"));
+			$h_enabled_box = $editable ? "<td><input type='checkbox' name='ext_".html_escape($extension->ext_name)."'$h_enabled></td>" : "";
+			$h_docs        = ($extension->documentation ? "<a href='$h_link'>■</a>" : ""); //TODO: A proper "docs" symbol would be preferred here.
 
-			$h_en = $editable ? "<td><input type='checkbox' name='ext_".html_escape($extension->ext_name)."'$h_enabled></td>" : "";
+			$h_required_ext = ($extension->required_extensions ? "data-required='".implode(",", $extension->required_extensions)."'" : "");
+			$h_optional_ext = ($extension->optional_extensions ? "data-optional='".implode(",", $extension->optional_extensions)."'" : "");
+
 			$html .= "
-				<tr>
-					$h_en
-					<td><a href='$h_link'>$h_name</a></td>
-					<td style='text-align: left;'>$h_description</td>
+				<tr data-ext='{$extension->ext_name}' {$h_required_ext} {$h_optional_ext}>
+					{$h_enabled_box}
+					<td>{$h_name}</td>
+					<td>{$h_docs}</td>
+					<td style='text-align: left;'>{$h_description}</td>
 				</tr>";
 		}
 		$h_set = $editable ? "<tfoot><tr><td colspan='5'><input type='submit' value='Set Extensions'></td></tr></tfoot>" : "";

@@ -5,8 +5,7 @@
  * Link: http://www.drudexsoftware.com/
  * License: GPLv2
  * Description: Allows admin to delete many images at once through Board Admin.
- * Documentation:
- *  
+ * Required Extensions: admin
  */
 //todo: removal by tag returns 1 less image in test for some reason, actually a combined search doesn't seem to work for shit either
 

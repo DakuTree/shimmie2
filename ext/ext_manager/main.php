@@ -19,9 +19,9 @@ function __extman_extcmp(ExtensionInfo $a, ExtensionInfo $b) {
 
 /** @private */
 class ExtensionInfo {
-	var $ext_name, $name, $link, $author, $email;
-	var $description, $documentation, $version, $visibility;
-	var $enabled;
+	public $ext_name, $name, $link, $author, $email;
+	public $description, $documentation, $version, $visibility, $required_extensions, $optional_extensions;
+	public $enabled;
 
 	public function __construct($main) {
 		$matches = array();
@@ -55,6 +55,12 @@ class ExtensionInfo {
 			}
 			else if(preg_match("/Author: (.*)/", $line, $matches)) {
 				$this->author = $matches[1];
+			}
+			else if(preg_match("/Required Extensions: (.*)/", $line, $matches)) {
+				$this->required_extensions = explode(",", str_replace(' ', '', $matches[1]));
+			}
+			else if(preg_match("/Optional Extensions: (.*)/", $line, $matches)) {
+				$this->optional_extensions = explode(",", str_replace(' ', '', $matches[1]));
 			}
 			else if(preg_match("/(.*)Description: ?(.*)/", $line, $matches)) {
 				$this->description = $matches[2];
