@@ -77,6 +77,14 @@ abstract class ShimmiePHPUnitTestCase extends PHPUnit_Framework_TestCase {
 		$this->assertNotContains($text, $this->page_to_text($section));
 	}
 
+	protected function assert_text_regexp($regexp, $section=null) {
+		$this->assertRegExp($regexp, $this->page_to_text($section));
+	}
+
+	protected function assert_no_text_regexp($regexp, $section=null) {
+		$this->assertNotRegExp($regexp, $this->page_to_text($section));
+	}
+
 	protected function assert_content($content) {
 		global $page;
 		$this->assertContains($content, $page->data);
@@ -122,6 +130,17 @@ abstract class ShimmiePHPUnitTestCase extends PHPUnit_Framework_TestCase {
 		send_event($dae);
 		$this->images[] = $dae->image_id;
 		return $dae->image_id;
+	}
+
+	/**
+	 * @param int $image_id
+	 * @param string $tags
+	 */
+	protected function tag_image($image_id, $tags) {
+		if($image = Image::by_id($image_id)) {
+			$tse = new TagSetEvent($image, $tags);
+			send_event($tse);
+		}
 	}
 
 	/**
