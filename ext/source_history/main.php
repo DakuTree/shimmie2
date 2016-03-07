@@ -3,6 +3,7 @@
  * Name: Source History
  * Author: Shish, copied from Source History
  * Description: Keep a record of source changes, and allows you to revert changes.
+ * Optional Extensions: admin
  */
 
 class Source_History extends Extension {

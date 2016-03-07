@@ -3,6 +3,7 @@
  * Name: Tag History
  * Author: Bzchan <bzchan@animemahou.com>, modified by jgen <jgen.tech@gmail.com>
  * Description: Keep a record of tag changes, and allows you to revert changes.
+ * Optional Extensions: admin
  */
 
 class Tag_History extends Extension {

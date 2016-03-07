@@ -5,6 +5,7 @@
  * Link: http://code.shishnet.org/shimmie2/
  * License: GPLv2
  * Description: Allow users to make comments on images
+ * Optional Extensions: admin
  * Documentation:
  *  Formatting is done with the standard formatting API (normally BBCode)
  */
