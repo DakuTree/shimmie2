@@ -106,10 +106,10 @@ function check_im_version() {
 function eok($name, $value) {
 	echo "<br>$name ... ";
 	if($value) {
-		echo "<font color='green'>ok</font>\n";
+		echo "<span color='green'>ok</span>\n";
 	}
 	else {
-		echo "<font color='red'>failed</font>\n";
+		echo "<span color='red'>failed</span>\n";
 	}
 }
 // }}}
@@ -127,6 +127,10 @@ function do_install() { // {{{
 	else {
 		ask_questions();
 		return;
+	}
+
+	if(isset($_POST['recommended_extensions'])) {
+		define('EXTRA_EXTS', 'favorites,rating,numeric_score,relationships,tag_categories,tag_history,source_history');
 	}
 
 	define("DATABASE_KA", true);
@@ -205,6 +209,10 @@ function ask_questions() { // {{{
 						<tr class="dbconf mysql pgsql sqlite">
 							<th>DB&nbsp;Name:</th>
 							<td><input type="text" name="database_name" size="40" value="shimmie"></td>
+						</tr>
+						<tr>
+							<th>Recommended Extensions:</th>
+							<td><input type="checkbox" name="recommended_extensions" size="40" checked></td>
 						</tr>
 						<tr><td colspan="2"><input type="submit" value="Go!"></td></tr>
 					</table>
@@ -428,9 +436,11 @@ function build_dirs() { // {{{
 } // }}}
 
 function write_config() { // {{{
-	$file_content = '<' . '?php' . "\n" .
-			"define('DATABASE_DSN', '".DATABASE_DSN."');\n" .
-			'?' . '>';
+	$file_content = ''.
+		'<?php'."\n".
+		'define(\'DATABASE_DSN\', \''.DATABASE_DSN.'\');'."\n".
+		(defined('EXTRA_EXTS') ? 'define(\'EXTRA_EXTS\', \''.EXTRA_EXTS.'\');'."\n" : '').
+		'?>';
 
 	if(!file_exists("data/config")) {
 		mkdir("data/config", 0755, true);
