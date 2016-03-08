@@ -38,8 +38,8 @@ _d("SEARCH_ACCEL", false);   // boolean  use search accelerator
 _d("WH_SPLITS", 1);          // int      how many levels of subfolders to put in the warehouse
 _d("VERSION", '2.5.5+');     // string   shimmie version
 _d("TIMEZONE", null);        // string   timezone
-_d("CORE_EXTS", "bbcode,user,mail,upload,image,view,handle_pixel,ext_manager,setup,upgrade,handle_404,comment,tag_list,index,tag_edit,alias_editor"); // extensions to always enable
-_d("EXTRA_EXTS", "");        // optional extra extensions
+_d("CORE_EXTS", "bbcode,user,upload,image,view,handle_pixel,ext_manager,setup,upgrade,handle_404,comment,tag_list,index,tag_edit,alias_editor"); // extensions to always enable
+_d("EXTRA_EXTS", "admin,bulk_add_csv,creationdate,ftag,image_history,log_db,numeric_score,pools,random_image,relatationships,shimmie_api,tag_categories,wiki");        // optional extra extensions
 
 
 /*

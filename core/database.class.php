@@ -98,6 +98,15 @@ class DBEngine {
 	public function create_table_sql($name, $data) {
 		return 'CREATE TABLE '.$name.' ('.$data.')';
 	}
+
+	/**
+	 * @param string $table
+	 * @param string $column
+	 * @param string $type
+	 * @param string $default
+	 */
+	public function create_alter_table_column_type_sql($table, $column, $type, $default){}
+
 }
 class MySQL extends DBEngine {
 	/** @var string */
@@ -726,6 +735,37 @@ class Database {
 	}
 
 	/**
+	 * Alter a table column type from pseudo-SQL.
+	 *
+	 * @param string $table
+	 * @param string $column
+	 * @param string $type
+	 * @param string $default
+	 */
+	public function alter_table_column_type($table, $column, $type, $default) {
+		if(is_null($this->db) || is_null($this->engine)) $this->connect_db();
+
+		if($this->engine->name === "mysql") {
+			$default = ($default ?: "NOT NULL");
+			$this->execute('ALTER TABLE '.$table.' MODIFY COLUMN '.$column.' '.$type.' '.$default);
+		}else if($this->engine->name === "pgsql") {
+			$this->execute('ALTER TABLE '.$table.' ALTER COLUMN '.$column.' SET DATA TYPE '.$type);
+		}else if($this->engine->name === "sqlite") {
+			//FIXME: There must be a better way to do this than rewriting the create table SQL.
+			$old_sql = $this->get_one("SELECT sql FROM sqlite_master WHERE type='table' AND name=:table", array("table"=>$table));
+			$new_sql = preg_replace("/\b(".$column.")\b (.*? )/", "$1 $type ", $old_sql);
+
+			$this->execute("ALTER TABLE $table RENAME TO tmp_$table");
+			$this->execute($new_sql);
+			$this->execute("INSERT INTO $table SELECT * FROM tmp_$table");
+			$this->execute("DROP TABLE tmp_$table");
+		}else{
+			// Hard to find a universal way to do this...
+			return NULL;
+		}
+	}
+
+	/**
 	 * Returns the number of tables present in the current database.
 	 *
 	 * @return int|null
@@ -832,4 +872,3 @@ class MockDatabase extends Database {
 	public function create_table($name, $def) {}
 	public function connect_engine() {}
 }
-

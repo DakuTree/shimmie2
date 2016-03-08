@@ -119,6 +119,7 @@ class TagSetEvent extends Event {
 			}
 
 			$ttpe = new TagTermParseEvent($tag, $this->image->id, FALSE); //Only check for metatags, don't parse. Parsing is done after set_tags.
+
 			send_event($ttpe);
 
 			//seperate tags from metatags
