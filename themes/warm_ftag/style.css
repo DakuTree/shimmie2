@@ -281,3 +281,8 @@ header > h1 {
 	margin-bottom: 2px;
 
 }
+
+/*TMPFIX*/
+.thumb {
+	width: 216px;
+}
