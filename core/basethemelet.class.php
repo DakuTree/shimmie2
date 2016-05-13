@@ -64,10 +64,15 @@ class BaseThemelet {
 			$tsize = get_thumbnail_size($config->get_int('thumb_width'), $config->get_int('thumb_height'));
 		}
 
+		//TODO: Maybe we should have some kind of event for this instead?
 		$custom_classes = "";
 		if(class_exists("Relationships")){
-			if(property_exists($image, 'parent_id') && $image->parent_id !== NULL){	$custom_classes .= "shm-thumb-has_parent ";	}
+			if(property_exists($image, 'parent_id') && $image->parent_id !== NULL){ $custom_classes .= "shm-thumb-has_parent "; }
 			if(property_exists($image, 'has_children') && $image->has_children == 'Y'){ $custom_classes .= "shm-thumb-has_child "; }
+		}
+		if(class_exists("Pools")){
+			$pools = new Pools();
+			if($pools->has_pool($image->id)) { $custom_classes .= "shm-thumb-has-pool "; };
 		}
 
 		return "<a href='$h_view_link' class='thumb shm-thumb shm-thumb-link {$custom_classes}' data-tags='$h_tags' data-post-id='$i_id'>".

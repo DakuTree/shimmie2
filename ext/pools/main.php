@@ -344,6 +344,15 @@ class Pools extends Extension {
 		if(!empty($matches)) $event->metatag = true;
 	}
 
+	/**
+	 * @param int $imageID Integer ID for the image
+	 * @return bool
+	 */
+	public function has_pool(/*int*/ $imageID) {
+		global $database;
+		return (bool) $database->get_one("SELECT COUNT(*) FROM pool_images WHERE image_id=:iid", array("iid"=>$imageID));
+	}
+
 	/* ------------------------------------------------- */
 	/* --------------  Private Functions  -------------- */
 	/* ------------------------------------------------- */
