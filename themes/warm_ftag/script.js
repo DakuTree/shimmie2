@@ -3,7 +3,7 @@ $(function() {
 
 	$('#orderby').change(function(){
 		var value = $("#orderby option:selected")[0].value;
-		$.cookie("shm_order_by", value, {path: '/', expires: 365});
+		Cookies.set("shm_order_by", value, {path: '/', expires: 365});
 		window.location.href = '';
 	});
 

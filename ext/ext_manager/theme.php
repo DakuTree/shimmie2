@@ -7,8 +7,6 @@ class ExtManagerTheme extends Themelet {
 			".make_form("ext_manager/set", "POST", array(), TRUE)."
 				<script type='text/javascript'>
 				$(document).ready(function() {
-					$(\"#extensions\").tablesorter();
-
 					$(\"#extensions\").find(\"> tbody > tr\").each(function() {
 						if($(this).attr('data-required')) {
 							if(!ext_is_enabled($(this).attr('data-required'))) {
@@ -37,7 +35,7 @@ class ExtManagerTheme extends Themelet {
 					}
 				});
 				</script>
-				<table id='extensions' class='zebra'>
+				<table id='extensions' class='zebra sortable'>
 					<thead>
 						<tr>
 							$h_en
