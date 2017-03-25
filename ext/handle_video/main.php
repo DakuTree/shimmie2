@@ -149,7 +149,7 @@ class VideoFileHandler extends DataHandlerExtension {
 		$image->width  = 1;
 		$image->height = 1;
 		
-		switch (mime_content_type($filename)) {
+		switch (getMimeType($filename)) {
 			case "video/webm":
 				$image->ext = "webm";
 				break;
@@ -183,7 +183,7 @@ class VideoFileHandler extends DataHandlerExtension {
 	protected function check_contents($file) {
 		$success = FALSE;
 		if (file_exists($file)) {
-			$mimeType = mime_content_type($file);
+			$mimeType = getMimeType($file);
 
 			$success = in_array($mimeType, [
 				'video/webm',
