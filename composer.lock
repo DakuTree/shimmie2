@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "bower-asset/jquery",
-            "version": "1.12.3",
+            "version": "1.12.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jquery/jquery-dist.git",
@@ -18,28 +18,13 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/jquery/jquery-dist/zipball/3a43d7e563314bf32970b773dd31ecf2b90813dd",
                 "reference": "3a43d7e563314bf32970b773dd31ecf2b90813dd",
-                "shasum": ""
+                "shasum": null
             },
-            "type": "bower-asset-library",
-            "extra": {
-                "bower-asset-main": "dist/jquery.js",
-                "bower-asset-ignore": [
-                    "package.json"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "keywords": [
-                "browser",
-                "javascript",
-                "jquery",
-                "library"
-            ]
+            "type": "library"
         },
         {
             "name": "bower-asset/jquery-timeago",
-            "version": "v1.5.2",
+            "version": "1.5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rmm5t/jquery-timeago.git",
@@ -49,26 +34,16 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/rmm5t/jquery-timeago/zipball/67c11951ae9b6020341c1056a42b5406162db40c",
                 "reference": "67c11951ae9b6020341c1056a42b5406162db40c",
-                "shasum": ""
+                "shasum": null
             },
             "require": {
                 "bower-asset/jquery": ">=1.4"
             },
-            "type": "bower-asset-library",
-            "extra": {
-                "bower-asset-main": "jquery.timeago.js",
-                "bower-asset-ignore": [
-                    "test",
-                    "vendor"
-                ]
-            },
-            "license": [
-                "MIT"
-            ]
+            "type": "library"
         },
         {
             "name": "bower-asset/js-cookie",
-            "version": "v2.1.1",
+            "version": "2.1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/js-cookie/js-cookie.git",
@@ -78,32 +53,13 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/js-cookie/js-cookie/zipball/5c830fb71a2bd3acce9cb733d692e13316991891",
                 "reference": "5c830fb71a2bd3acce9cb733d692e13316991891",
-                "shasum": ""
+                "shasum": null
             },
-            "type": "bower-asset-library",
-            "extra": {
-                "bower-asset-main": [
-                    "src/js.cookie.js"
-                ],
-                "bower-asset-ignore": [
-                    "travis.sh",
-                    "test",
-                    "Gruntfile.js",
-                    "package.json",
-                    ".gitignore",
-                    ".jshintignore",
-                    ".jshintrc",
-                    ".tm_properties",
-                    ".travis.yml"
-                ]
-            },
-            "license": [
-                "MIT"
-            ]
+            "type": "library"
         },
         {
             "name": "bower-asset/mediaelement",
-            "version": "2.21.1",
+            "version": "2.21.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/johndyer/mediaelement.git",
@@ -113,36 +69,13 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/johndyer/mediaelement/zipball/6e80b260172f4ddc3b0bbee046775d2ba4c6f9b7",
                 "reference": "6e80b260172f4ddc3b0bbee046775d2ba4c6f9b7",
-                "shasum": ""
+                "shasum": null
             },
-            "type": "bower-asset-library",
-            "extra": {
-                "bower-asset-main": [
-                    "./build/mediaelement-and-player.js",
-                    "./build/mediaelementplayer.css"
-                ],
-                "bower-asset-ignore": [
-                    "**",
-                    "!/build/**",
-                    "!/bower.json",
-                    "!/README*",
-                    "!/changelog*"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "HTML5 <video> and <audio> made easy.",
-            "keywords": [
-                "audio",
-                "html5",
-                "shim",
-                "video"
-            ]
+            "type": "library"
         },
         {
             "name": "bower-asset/tablesorter",
-            "version": "dev-master",
+            "version": "2.0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/christianbach/tablesorter.git",
@@ -152,35 +85,9 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/christianbach/tablesorter/zipball/774576308e8a25aa9d68b7fe3069b79543992d7a",
                 "reference": "774576308e8a25aa9d68b7fe3069b79543992d7a",
-                "shasum": ""
+                "shasum": null
             },
-            "type": "bower-asset-library",
-            "extra": {
-                "bower-asset-main": [
-                    "jquery.metadata.js",
-                    "jquery.tablesorter.min.js"
-                ],
-                "bower-asset-ignore": [
-                    "**/.*",
-                    "node_modules",
-                    "bower_components",
-                    "test",
-                    "tests"
-                ],
-                "branch-alias": {
-                    "dev-master": "2.0.5-dev"
-                }
-            },
-            "license": [
-                "MIT,GPL"
-            ],
-            "description": "Flexible client-side table sorting",
-            "keywords": [
-                "client-side",
-                "sort",
-                "table"
-            ],
-            "time": "2015-12-03 01:22:52"
+            "type": "library"
         },
         {
             "name": "dapphp/securimage",
@@ -391,7 +298,7 @@
                 "constructor",
                 "instantiate"
             ],
-            "time": "2017-02-16 16:15:51"
+            "time": "2017-02-16T16:15:51+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -487,7 +394,7 @@
                 "reflection",
                 "static analysis"
             ],
-            "time": "2015-12-27 11:43:31"
+            "time": "2015-12-27T11:43:31+00:00"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -642,7 +549,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2017-03-03 17:09:02"
+            "time": "2017-03-03T17:09:02+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -705,7 +612,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-03-07 10:28:00"
+            "time": "2017-03-07T10:28:00+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -752,7 +659,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2016-10-03 07:40:28"
+            "time": "2016-10-03T07:40:28+00:00"
         },
         {
             "name": "phpunit/php-text-template",
@@ -842,7 +749,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2017-03-07 15:42:04"
+            "time": "2017-03-07T15:42:04+00:00"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -891,7 +798,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2017-03-07 07:36:57"
+            "time": "2017-03-07T07:36:57+00:00"
         },
         {
             "name": "phpunit/phpunit",
@@ -899,12 +806,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "d421807ce5f372ecaf0bff3a5d41f5c60a18329f"
+                "reference": "c4ebb68af6e68179eb2381603ad35032622894cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/d421807ce5f372ecaf0bff3a5d41f5c60a18329f",
-                "reference": "d421807ce5f372ecaf0bff3a5d41f5c60a18329f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c4ebb68af6e68179eb2381603ad35032622894cf",
+                "reference": "c4ebb68af6e68179eb2381603ad35032622894cf",
                 "shasum": ""
             },
             "require": {
@@ -973,7 +880,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-03-09 13:47:42"
+            "time": "2017-03-20T17:41:26+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1032,7 +939,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2017-03-07 08:47:31"
+            "time": "2017-03-07T08:47:31+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1077,7 +984,7 @@
             ],
             "description": "Looks up which function or method a line of code belongs to",
             "homepage": "https://github.com/sebastianbergmann/code-unit-reverse-lookup/",
-            "time": "2017-03-04 10:23:55"
+            "time": "2017-03-04T10:23:55+00:00"
         },
         {
             "name": "sebastian/comparator",
@@ -1141,7 +1048,7 @@
                 "compare",
                 "equality"
             ],
-            "time": "2017-03-07 10:34:43"
+            "time": "2017-03-07T10:34:43+00:00"
         },
         {
             "name": "sebastian/diff",
@@ -1193,7 +1100,7 @@
             "keywords": [
                 "diff"
             ],
-            "time": "2017-03-07 07:26:53"
+            "time": "2017-03-07T07:26:53+00:00"
         },
         {
             "name": "sebastian/environment",
@@ -1243,7 +1150,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2017-03-07 12:59:58"
+            "time": "2017-03-07T12:59:58+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -1310,7 +1217,7 @@
                 "export",
                 "exporter"
             ],
-            "time": "2017-03-07 10:36:49"
+            "time": "2017-03-07T10:36:49+00:00"
         },
         {
             "name": "sebastian/global-state",
@@ -1361,7 +1268,7 @@
             "keywords": [
                 "global state"
             ],
-            "time": "2017-02-23 14:11:06"
+            "time": "2017-02-23T14:11:06+00:00"
         },
         {
             "name": "sebastian/object-enumerator",
@@ -1407,7 +1314,7 @@
             ],
             "description": "Traverses array structures and object graphs to enumerate all referenced objects",
             "homepage": "https://github.com/sebastianbergmann/object-enumerator/",
-            "time": "2017-03-07 10:37:45"
+            "time": "2017-03-07T10:37:45+00:00"
         },
         {
             "name": "sebastian/recursion-context",
@@ -1460,7 +1367,7 @@
             ],
             "description": "Provides functionality to recursively process PHP variables",
             "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
-            "time": "2017-03-08 08:21:15"
+            "time": "2017-03-08T08:21:15+00:00"
         },
         {
             "name": "sebastian/resource-operations",
@@ -1502,7 +1409,7 @@
             ],
             "description": "Provides a list of PHP built-in functions that operate on resources",
             "homepage": "https://www.github.com/sebastianbergmann/resource-operations",
-            "time": "2016-10-03 07:43:09"
+            "time": "2016-10-03T07:43:09+00:00"
         },
         {
             "name": "sebastian/version",
@@ -1545,7 +1452,7 @@
             ],
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
             "homepage": "https://github.com/sebastianbergmann/version",
-            "time": "2016-10-03 07:35:21"
+            "time": "2016-10-03T07:35:21+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -1553,12 +1460,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "d1abb473764f82339862b114b45b3cd424b2d1a3"
+                "reference": "76ae7f27e17ab4e5e177d8f9aa6c116d56fe47df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/d1abb473764f82339862b114b45b3cd424b2d1a3",
-                "reference": "d1abb473764f82339862b114b45b3cd424b2d1a3",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/76ae7f27e17ab4e5e177d8f9aa6c116d56fe47df",
+                "reference": "76ae7f27e17ab4e5e177d8f9aa6c116d56fe47df",
                 "shasum": ""
             },
             "require": {
@@ -1600,7 +1507,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-03-07 16:54:31"
+            "time": "2017-03-22T19:08:11+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -1650,7 +1557,7 @@
                 "check",
                 "validate"
             ],
-            "time": "2016-11-23 20:04:41"
+            "time": "2016-11-23T20:04:41+00:00"
         }
     ],
     "aliases": [],
