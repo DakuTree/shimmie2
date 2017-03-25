@@ -59,4 +59,3 @@ function ctx_log_ender($text=null, $clear=false) {
 		ctx_log_msg(__get_func(), $text, "ENDER");
 	}
 }
-?>
