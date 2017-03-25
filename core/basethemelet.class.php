@@ -66,8 +66,12 @@ class BaseThemelet {
 
 		$custom_classes = "";
 		if(class_exists("Relationships")){
-			if(property_exists($image, 'parent_id') && $image->parent_id !== NULL){	$custom_classes .= "shm-thumb-has_parent ";	}
+			if(property_exists($image, 'parent_id') && $image->parent_id !== NULL){ $custom_classes .= "shm-thumb-has_parent "; }
 			if(property_exists($image, 'has_children') && bool_escape($image->has_children)){ $custom_classes .= "shm-thumb-has_child "; }
+		}
+		if(class_exists("Pools")){
+			$pools = new Pools();
+			if($pools->has_pool($image->id)) { $custom_classes .= "shm-thumb-has-pool "; };
 		}
 
 		return "<a href='$h_view_link' class='thumb shm-thumb shm-thumb-link {$custom_classes}' data-tags='$h_tags' data-post-id='$i_id'>".
@@ -150,8 +154,8 @@ class BaseThemelet {
 		$next_html   = $at_end   ? "Next"  : $this->gen_page_link($base_url, $query, $next,        "Next");
 		$last_html   = $at_end   ? "Last"  : $this->gen_page_link($base_url, $query, $total_pages, "Last");
 
-		$start = $current_page-5 > 1 ? $current_page-5 : 1;
-		$end = $start+10 < $total_pages ? $start+10 : $total_pages;
+		$start = $current_page-10 > 1 ? $current_page-10 : 1;
+		$end = $start+20 < $total_pages ? $start+20 : $total_pages;
 
 		$pages = array();
 		foreach(range($start, $end) as $i) {
