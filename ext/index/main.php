@@ -233,10 +233,11 @@ class Index extends Extension {
 		$config->set_default_int("index_images", 24);
 		$config->set_default_bool("index_tips", true);
 		$config->set_default_string("index_order", "id DESC");
+		$config->set_default_bool("list_controls", false);
 	}
 
 	public function onPageRequest(PageRequestEvent $event) {
-		global $database, $page;
+		global $database, $page, $config;
 		if($event->page_matches("post/list")) {
 			if(isset($_GET['search'])) {
 				// implode(explode()) to resolve aliases and sanitise
@@ -294,7 +295,9 @@ class Index extends Extension {
 
 				$this->theme->set_page($page_number, $total_pages, $search_terms);
 				$this->theme->display_page($page, $images);
-				if(count($plbe->parts) > 0) {
+
+				//List Controls
+				if($config->get_bool("list_controls") && count($plbe->parts) > 0) {
 					$this->theme->display_admin_block($plbe->parts);
 				}
 			}
@@ -308,6 +311,8 @@ class Index extends Extension {
 		$sb->add_label("Show ");
 		$sb->add_int_option("index_images");
 		$sb->add_label(" images on the post list");
+
+		$sb->add_bool_option("list_controls", "<br>Show admin list controls: ");
 
 		$event->panel->add_block($sb);
 	}
@@ -357,7 +362,7 @@ class Index extends Extension {
 		}
 		else if(preg_match("/^(filename|name)[=|:]([a-zA-Z0-9]*)$/i", $event->term, $matches)) {
 			$filename = strtolower($matches[2]);
-			$event->add_querylet(new Querylet("images.filename LIKE :filename{$this->stpen}", array("filename{$this->stpen}"=>"%$filename%")));
+			$event->add_querylet(new Querylet("images.filename LIKE :filename{$this->stpen}", array("filename{$this->stpen}"=>"$filename%")));
 		}
 		else if(preg_match("/^(source)[=|:](.*)$/i", $event->term, $matches)) {
 			$source = strtolower($matches[2]);

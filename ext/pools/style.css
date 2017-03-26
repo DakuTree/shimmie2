@@ -11,3 +11,8 @@
 	text-align: left;
 	float: left;
 }
+
+.shm-thumb-has-pool img {
+	/* TODO: Should we a overlay here instead? */
+	border-style: dashed !important;
+}

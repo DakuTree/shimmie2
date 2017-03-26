@@ -108,10 +108,7 @@ class Ratings extends Extension {
 	
 	public function onImageInfoSet(ImageInfoSetEvent $event) {
 		if($this->can_rate() && isset($_POST["rating"])) {
-			$rating = $_POST["rating"];
-			if (Ratings::rating_is_valid($rating)) {
-				send_event(new RatingSetEvent($event->image, $rating));
-			}
+			send_event(new RatingSetEvent($event->image, $_POST['rating']));
 		}
 	}
 

@@ -295,6 +295,19 @@ class Pools extends Extension {
 		}
 	}
 
+
+	public function onImageDeletion(ImageDeletionEvent $event) {
+		global $database;
+
+		//Due to foreign keys, the rows in pool_images no longer exist for us to get poolIDs from them.
+		//Meaning that there is no way to know what pools need their count updated, or if they even had a pool in the first place.
+
+		//To avoid having incorrect pool counts we need to recheck every pool count whenever an image is deleted.
+		$database->execute("
+				UPDATE pools
+				SET posts = (SELECT COUNT(*) FROM pool_images WHERE pools.id = pool_images.pool_id)");
+	}
+
 	public function onSearchTermParse(SearchTermParseEvent $event) {
 		$matches = array();
 		if(preg_match("/^pool[=|:]([0-9]+|any|none)$/i", $event->term, $matches)) {
@@ -342,6 +355,15 @@ class Pools extends Extension {
 		}
 
 		if(!empty($matches)) $event->metatag = true;
+	}
+
+	/**
+	 * @param int $imageID Integer ID for the image
+	 * @return bool
+	 */
+	public function has_pool(/*int*/ $imageID) {
+		global $database;
+		return (bool) $database->get_one("SELECT COUNT(*) FROM pool_images WHERE image_id=:iid", array("iid"=>$imageID));
 	}
 
 	/* ------------------------------------------------- */
@@ -909,7 +931,11 @@ class Pools extends Extension {
 		global $database, $config;
 
 		if(!$this->check_post($poolID, $imageID)) {
-			if($config->get_bool("poolsAutoIncrementOrder") && $imageOrder === 0){
+
+			if($imageOrder === 0 && preg_match("/(Vol|Ch)\.([0-9]+)/", Image::by_id($imageID)->filename, $matches)) {
+				$imageOrder = $matches[2];
+			}
+			elseif($config->get_bool("poolsAutoIncrementOrder") && $imageOrder === 0){
 				$imageOrder = $database->get_one("
 						SELECT CASE WHEN image_order IS NOT NULL THEN MAX(image_order) + 1 ELSE 0 END
 						FROM pool_images

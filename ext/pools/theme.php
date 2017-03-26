@@ -21,7 +21,6 @@ class PoolsTheme extends Themelet {
 					$navlinks .= '<a href="'.make_link('post/view/'.$pool['nav']['next']).'" class="pools_next_img">Next</a>';
 				}
 				if(!empty($navlinks)){
-					$navlinks .= "<div style='height: 5px'></div>";
 					$linksPools[] = $navlinks;
 				}
 			}
@@ -130,20 +129,20 @@ class PoolsTheme extends Themelet {
 	 * @param string $heading
 	 * @param bool $check_all
 	 */
-	private function display_top(/*array*/ $pools, /*string*/ $heading, $check_all=false) {
+	protected function display_top(/*array*/ $pools, /*string*/ $heading, $check_all=false) {
 		global $page, $user;
 
 		$page->set_title($heading);
 		$page->set_heading($heading);
 
-		$poolnav_html = '
-			<a href="'.make_link("pool/list").'">Pool Index</a>
+		$nav_html = '
+			<a href="'.make_link().'">Index</a>
+			<br><a href="'.make_link("pool/list").'">Pool Index</a>
 			<br><a href="'.make_link("pool/new").'">Create Pool</a>
 			<br><a href="'.make_link("pool/updated").'">Pool Changes</a>
 		';
 
-		$page->add_block(new NavBlock());
-		$page->add_block(new Block("Pool Navigation", $poolnav_html, "left", 10));
+		$page->add_block(new Block("Pool Navigation", $nav_html, "left", 10));
 
 		if(count($pools) == 1) {
 			$pool = $pools[0];

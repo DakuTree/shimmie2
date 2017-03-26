@@ -4,6 +4,7 @@
  * Author: velocity37 <velocity37@gmail.com>
  * License: GPLv2
  * Description: Bulk add server-side images with metadata from CSV file
+ * Required Extensions: admin
  * Documentation:
  *  Modification of "Bulk Add" by Shish.<br><br>
  *  Adds images from a CSV with the five following values: <br>

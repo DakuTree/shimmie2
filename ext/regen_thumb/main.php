@@ -18,6 +18,10 @@ class RegenThumb extends Extension {
 		global $page, $user;
 
 		if($event->page_matches("regen_thumb") && $user->can("delete_image") && isset($_POST['image_id'])) {
+			// for($count=31210; $count<32256; $count++) {
+				// $image = Image::by_id($count);
+				// send_event(new ThumbnailGenerationEvent($image->hash, $image->ext, true));
+			// }
 			$image = Image::by_id(int_escape($_POST['image_id']));
 			send_event(new ThumbnailGenerationEvent($image->hash, $image->ext, true));
 			$this->theme->display_results($page, $image);

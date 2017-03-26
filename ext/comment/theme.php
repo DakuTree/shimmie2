@@ -315,7 +315,7 @@ class CommentListTheme extends Themelet {
 			'.make_form(make_link("comment/add")).'
 				<input type="hidden" name="image_id" value="'.$i_image_id.'" />
 				<input type="hidden" name="hash" value="'.$hash.'" />
-				<textarea id="comment_on_'.$i_image_id.'" name="comment" rows="5" cols="50"></textarea>
+				<textarea id="comment_on_'.$i_image_id.'" name="comment" rows="5" cols="50" required></textarea>
 				'.$h_captcha.'
 				<br><input type="submit" value="Post Comment" />
 			</form>

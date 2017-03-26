@@ -3,6 +3,7 @@
  * Name: Tag Editor
  * Author: Shish
  * Description: Allow images to have tags assigned to them
+ * Optional Extensions: admin
  * Documentation:
  *  Here is a list of the tagging metatags available out of the box;
  *  Shimmie extensions may provide other metatags:

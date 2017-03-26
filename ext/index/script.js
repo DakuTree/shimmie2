@@ -34,9 +34,9 @@ $(function() {
 });
 
 function select_blocked_tags() {
-	var blocked_tags = prompt("Enter tags to ignore", Cookies.get("ui-blocked-tags") || "My_Little_Pony");
+	var blocked_tags = prompt("Enter tags to ignore", Cookies.get("ui-blocked-tags") || "");
 	if(blocked_tags !== null) {
-		Cookies.set("ui-blocked-tags", blocked_tags.toLowerCase(), {expires: 365});
+		Cookies.set("ui-blocked-tags", blocked_tags.toLowerCase(), {path: '/', expires: 365});
 		location.reload(true);
 	}
 }

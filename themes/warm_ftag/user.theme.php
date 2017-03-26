@@ -15,7 +15,7 @@ class CustomUserPageTheme extends UserPageTheme {
 	public function display_login_block(Page $page) {
 		global $config;
 		$html = "
-			".make_form("user_admin/login")."
+			".make_form(make_link("user_admin/login"))."
 				<table summary='Login Form' align='center'>
 				<tr><td width='70'>Name</td><td width='70'><input type='text' name='user'></td></tr>
 				<tr><td>Password</td><td><input type='password' name='pass'></td></tr>

@@ -22,7 +22,7 @@ function __extman_extcmp(ExtensionInfo $a, ExtensionInfo $b) {
 
 class ExtensionInfo {
 	public $ext_name, $name, $link, $author, $email;
-	public $description, $documentation, $version, $visibility;
+	public $description, $documentation, $version, $visibility, $required_extensions, $optional_extensions;
 	public $enabled;
 
 	public function __construct($main) {
@@ -57,6 +57,12 @@ class ExtensionInfo {
 			}
 			else if(preg_match("/Author: (.*)/", $line, $matches)) {
 				$this->author = $matches[1];
+			}
+			else if(preg_match("/Required Extensions: (.*)/", $line, $matches)) {
+				$this->required_extensions = explode(",", str_replace(' ', '', $matches[1]));
+			}
+			else if(preg_match("/Optional Extensions: (.*)/", $line, $matches)) {
+				$this->optional_extensions = explode(",", str_replace(' ', '', $matches[1]));
 			}
 			else if(preg_match("/(.*)Description: ?(.*)/", $line, $matches)) {
 				$this->description = $matches[2];

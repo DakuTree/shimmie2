@@ -10,6 +10,36 @@ class ExtManagerTheme extends Themelet {
 		$h_en = $editable ? "<th>Enabled</th>" : "";
 		$html = "
 			".make_form(make_link("ext_manager/set"))."
+				<script type='text/javascript'>
+				$(document).ready(function() {
+					$(\"#extensions\").find(\"> tbody > tr\").each(function() {
+						if($(this).attr('data-required')) {
+							if(!ext_is_enabled($(this).attr('data-required'))) {
+								$(this).find('input[type=checkbox]').parent().css('background-color', 'rgba(255, 0, 0, 0.75)');
+								$(this).find('input[type=checkbox]').attr('disabled', true);
+								$(this).find('input[type=checkbox]').attr('title', 'This requires these extensions to run: '+$(this).attr('data-required'));
+
+							}
+						} else if($(this).attr('data-optional')) {
+							if(!ext_is_enabled($(this).attr('data-optional'))) {
+								$(this).find('input[type=checkbox]').parent().css('background-color', 'rgba(255, 100, 0, 0.75)');
+								$(this).find('input[type=checkbox]').attr('title', 'This extension has optional features which use these extensions: '+$(this).attr('data-required'));
+							}
+						}
+					});
+
+					function ext_is_enabled(name) {
+						var enabled = 0;
+
+						var name_arr = name.split(',');
+						name_arr.forEach(function(n) {
+							enabled = enabled + $(\"#extensions\").find(\"> tbody > tr[data-ext=\"+n+\"] > td:first-of-type > input:checked\").length;
+						});
+
+						return enabled;
+					}
+				});
+				</script>
 				<table id='extensions' class='zebra sortable'>
 					<thead>
 						<tr>
@@ -31,8 +61,11 @@ class ExtManagerTheme extends Themelet {
 			$h_enabled_box = $editable ? "<td><input type='checkbox' name='ext_".html_escape($extension->ext_name)."'$h_enabled></td>" : "";
 			$h_docs        = ($extension->documentation ? "<a href='$h_link'>■</a>" : ""); //TODO: A proper "docs" symbol would be preferred here.
 
+			$h_required_ext = ($extension->required_extensions ? "data-required='".implode(",", $extension->required_extensions)."'" : "");
+			$h_optional_ext = ($extension->optional_extensions ? "data-optional='".implode(",", $extension->optional_extensions)."'" : "");
+
 			$html .= "
-				<tr data-ext='{$extension->ext_name}'>
+				<tr data-ext='{$extension->ext_name}' {$h_required_ext} {$h_optional_ext}>
 					{$h_enabled_box}
 					<td>{$h_name}</td>
 					<td>{$h_docs}</td>
