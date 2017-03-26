@@ -514,14 +514,12 @@ class TagList extends Extension {
 				// Metatags are do not act like a normal tag and should be ignored
 				$stpe = new SearchTermParseEvent($tag, $wild_tags);
 				send_event($stpe);
-				if(!$stpe->is_querylet_set()) { //if not metatag
-					$tag_ids = $database->get_col("SELECT id FROM tags WHERE tag LIKE :tag", array("tag"=>$tag));
-					// $search_tags = array_merge($search_tags,
-					//                  $database->get_col("SELECT tag FROM tags WHERE tag LIKE :tag", array("tag"=>$tag)));
-					$tag_id_array = array_merge($tag_id_array, $tag_ids);
-					$tags_ok = count($tag_ids) > 0;
-					if(!$tags_ok) break;
-				}
+				$tag_ids = $database->get_col("SELECT id FROM tags WHERE tag LIKE :tag", array("tag"=>$tag));
+				// $search_tags = array_merge($search_tags,
+				//                  $database->get_col("SELECT tag FROM tags WHERE tag LIKE :tag", array("tag"=>$tag)));
+				$tag_id_array = array_merge($tag_id_array, $tag_ids);
+				$tags_ok = count($tag_ids) > 0;
+				if(!$tags_ok) break;
 			}
 			$tag_id_list = join(', ', $tag_id_array);
 
