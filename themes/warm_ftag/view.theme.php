@@ -6,7 +6,8 @@ class CustomViewImageTheme extends ViewImageTheme {
 
 		$h_metatags = str_replace(" ", ", ", html_escape($image->get_tag_list()));
 
-		$page->set_title("Image {$image->id}: ".html_escape($image->get_tag_list()));
+		$page->set_title("Image {$image->id}");
+
 		$page->add_html_header("<meta name=\"keywords\" content=\"$h_metatags\">");
 		$page->add_html_header("<meta property=\"og:title\" content=\"$h_metatags\">");
 		$page->add_html_header("<meta property=\"og:type\" content=\"article\">");
@@ -20,7 +21,8 @@ class CustomViewImageTheme extends ViewImageTheme {
 				});
 			})(jQuery);
 			</script>", 60);
-		$page->set_heading(html_escape($image->get_tag_list()));
+		//$page->set_heading(html_escape($image->get_tag_list()));
+		$page->set_heading("Image {$image->id}");
 		$page->add_block(new Block("Navigation", $this->build_navigation($image), "left", 0));
 		$page->add_block(new Block(null, $this->build_info($image, $editor_parts), "main", 20));
 	}

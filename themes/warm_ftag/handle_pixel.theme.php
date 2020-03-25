@@ -29,10 +29,10 @@ class CustomPixelFileHandlerTheme extends PixelFileHandlerTheme {
 
 		$html = "<img alt='main image' class='shm-main-image' id='main_image' src='$u_ilink' data-width='{$image->width}' data-height='{$image->height}' data-filename=\"".substr($image->filename, 0, -4)."\">";
 		$fn = substr($image->filename, 0, -4);
-		$fn = str_replace("'", "&apos;", $fn);
-
+		//$fn = str_replace("'", "&apos;", $fn);
+		$bfn = base64_encode($fn);
 		preg_match("/^(.*?)((Vol|Ch)\.([0-9]+))?$/", $fn, $matches);
-		$page->add_block(new Block("<a href=\"ftag://$fn\" style=\"font-size: 1.1em;\">$fn</a><a href=\"".make_link("/pool/new")."?title=".html_escape($matches[1])."\" style=\"float: right;l\">¬</a>", $html, "main", 10));
+		$page->add_block(new Block("<a href=\"ftag://$bfn\" style=\"font-size: 1.1em;\">$fn</a><a href=\"".make_link("/pool/new")."?title=".html_escape($matches[1])."\" style=\"float: right;l\">¬</a>", $html, "main", 10));
 	}
 }
 ?>

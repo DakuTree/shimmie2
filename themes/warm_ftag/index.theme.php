@@ -11,7 +11,8 @@ class CustomIndexTheme extends IndexTheme {
 		else {
 			$search_string = implode(' ', $this->search_terms);
 			$query = url_escape($search_string);
-			$page_title = html_escape($search_string);
+			//$page_title = html_escape($search_string);
+			$page_title = 'search';
 			if(count($images) > 0) {
 				$page->set_subheading("Page {$this->page_number} / {$this->total_pages}");
 			}
