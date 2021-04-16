@@ -35,7 +35,7 @@ class CustomViewImageTheme extends ViewImageTheme {
 				if((strpos($part, "Image Only") == false) && (strpos($part, "Replace") == false) && (strpos($part, "shm-zoomer") == false)){
 					$html .= $part;
 				}
-				
+
 			}
 
 			$page->add_block(new Block("Image Controls", $html, "left", 50));
@@ -93,9 +93,6 @@ class CustomViewImageTheme extends ViewImageTheme {
 					<td><a href='#' class='qt_a'>vote:tripleup</a></td>
 				</tr>
 				<tr>
-					<td><a href='#' class='qt_a'>@:long</a></td><td><a href='#' class='qt_a'>@:short</a></td>
-				</tr>
-				<tr>
 					<td><a href='#' class='qt_a'>@:incomplete</a></td>
 				</tr>
 				<tr>
@@ -115,7 +112,7 @@ class CustomViewImageTheme extends ViewImageTheme {
 				<input type='hidden' name='vote' value='tripleup'>
 				<input type='submit' value='Triple Vote Up'>
 			</form>
-		
+
 			".make_form(make_link("numeric_score_vote"))."
 				<input type='hidden' name='image_id' value='$i_image_id'>
 				<input type='hidden' name='vote' value='doubleup'>

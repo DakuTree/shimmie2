@@ -49,6 +49,16 @@ class FTAG extends Extension {
 		}
 	}
 
+	public function onTagTermParse(TagTermParseEvent $event) {
+		$matches = array();
+
+		if(preg_match("/^(?:util:)?pages[=|:]([0-9]+)$/", $event->term, $matches)) {
+			$pageCount = $matches[1];
+			$this->setPageCount($event->id, $pageCount);
+		}
+
+		if(!empty($matches)) $event->metatag = true;
+	}
 	public function onSearchTermParse(SearchTermParseEvent $event) {
 		$matches = array();
 
@@ -63,6 +73,15 @@ class FTAG extends Extension {
 		}
 	}
 
+	private function setPageCount(/*int*/ $imageID, /*int*/ $pageCount){
+		global $database;
+
+		$database->execute("UPDATE images SET page_count = :pc WHERE id = :iid", array("iid"=> $imageID, "pc"=> $pageCount));
+	}
+
+	public function onImageInfoBoxBuilding(ImageInfoBoxBuildingEvent $event) {
+		$event->add_part($this->theme->get_parent_editor_html($event->image), 45);
+	}
+
 	public function get_priority() { return 5; }
 }
-
