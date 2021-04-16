@@ -46,7 +46,7 @@ class _SafeImage {
 
 class ShimmieApi extends Extension {
 	public function onPageRequest(PageRequestEvent $event) {
-		global $page, $user;
+		global $page, $user, $database;
 
 		if($event->page_matches("api/shimmie")) {
 			$page->set_mode("data");
@@ -99,6 +99,49 @@ class ShimmieApi extends Extension {
 
 				$all = $this->api_get_user($type, $query);
 				$page->set_data(json_encode($all));
+			}
+
+			elseif($event->page_matches("api/shimmie/update_image")) {
+				if ((!isset($_POST['image_id']) && is_int($_POST['image_id'])) || !isset($_POST['tags'])) {
+					return;
+				}
+				$imageID = (int)    $_POST['image_id'];
+				$tags    = (string) $_POST['tags'];
+
+				$user = User::by_id(3);
+
+				$image = Image::by_id($imageID);
+				$event = new TagSetEvent($image, Tag::explode($tags));
+				send_event($event);
+
+				$page->set_data(json_encode(['status' => $image]));
+			}
+			elseif($event->page_matches("api/shimmie/update_image_bulk")) {
+				$data = json_decode(file_get_contents('php://input'), true);
+
+				$user = User::by_id(3); //Force set USER
+				foreach ($data['images'] as $imageData) {
+					send_event(new TagSetEvent(Image::by_id($imageData['image_id']), Tag::explode($imageData['tags'])));
+					$database->execute(
+						"REPLACE INTO tag_updated (id, lastchecked, source_dead)
+						VALUES (:image_id, CURRENT_TIMESTAMP(), :status)",
+						['image_id' => (string) $imageData['image_id'], 'status' => $imageData['expunged'] ? 'Y' : 'N']
+					);
+				}
+
+				$page->set_data(json_encode(['status' => 'OK?']));
+			}
+			elseif($event->page_matches("api/shimmie/delete_image_bulk")) {
+				$data = json_decode(file_get_contents('php://input'), true);
+
+				if (!in_array('confirm', $data)) return;
+
+				$user = User::by_id(3); //Force set USER
+				foreach ($data['ids'] as $id) {
+					send_event(new ImageDeletionEvent(Image::by_id($id)));
+				}
+
+				$page->set_data(json_encode($data['ids']));
 			}
 
 			else {
@@ -170,4 +213,3 @@ class ShimmieApi extends Extension {
 		return $all;
 	}
 }
-
