@@ -15,7 +15,8 @@
  */
 
 class ImageHistory extends Extension {
-	public $history_id;
+	public $history_id; // used for upload
+	public $history_ids = [];
 	public $events = 0;
 
 	public function get_priority() {return 40;}
@@ -147,8 +148,7 @@ class ImageHistory extends Extension {
 
 	//fix for bulk_add, need to make sure history id is different for each image
 	public function onDataUpload(DataUploadEvent $event) {
-		$this->history_id = NULL;
-		$this->events = 0;
+		$this->history_ids = [];
 	}
 
 	/** add history functions **/
@@ -186,11 +186,11 @@ class ImageHistory extends Extension {
 		//       The only time this would ever be needed is when the ext is first loaded, but that could be fixed via mass create row
 		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
-			$this->events++;
+			$this->history_ids[$image->id]['events']++;
 			$database->execute("
 				INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
 				VALUES (?, ?, ?, ?)",
-				array($history_id, $this->events, 'tags', $old_taglist)
+				array($history_id, $this->history_ids[$image->id]['events'], 'tags', $old_taglist)
 			);
 		}
 
@@ -201,11 +201,11 @@ class ImageHistory extends Extension {
 		);
 
 		//add a history event
-		$this->events++;
+		$this->history_ids[$image->id]['events']++;
 		$database->execute("
 			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2, custom3)
 			VALUES (?, ?, ?, ?, ?, ?)",
-			array($history_id, $this->events, 'tags', Tag::implode($diff['unchanged']), (Tag::implode($diff['added']) ?: NULL), (Tag::implode($diff['removed']) ?: NULL))
+			array($history_id, $this->history_ids[$image->id]['events'], 'tags', Tag::implode($diff['unchanged']), (Tag::implode($diff['added']) ?: NULL), (Tag::implode($diff['removed']) ?: NULL))
 		);
 
 		if($config->get_bool("ext_imagehistory_logdb_tags")) log_debug("image_history", "TagHistory: [{$old_taglist}] -> [{$new_taglist}]", false, array("image_id" => $image->id));
@@ -232,20 +232,20 @@ class ImageHistory extends Extension {
 		//       This also sets as current user, rather than uploader
 		$entries = $database->get_one("SELECT COUNT(*) FROM ext_imagehistory WHERE image_id = ?", array($image->id));
 		if($entries == 0){ //CHECK: Should this also check if old_tags is empty? Even if empty = tagme
-			$this->events++;
+			$this->history_ids[$image->id]['events']++;
 			$database->execute("
 				INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1)
 				VALUES (?, ?, ?, ?)",
-				array($history_id, $this->events, 'source', $old_source)
+				array($history_id, $this->history_ids[$image->id]['events'], 'source', $old_source)
 			);
 		}
 
 		//add a history event
-		$this->events++;
+		$this->history_ids[$image->id]['events']++;
 		$database->execute("
 			INSERT INTO ext_imagehistory_events (history_id, event_id, type, custom1, custom2)
 			VALUES (?, ?, ?, ?, ?)",
-			array($history_id, $this->events, 'source', $new_source, $old_source)
+			array($history_id, $this->history_ids[$image->id]['events'], 'source', $new_source, $old_source)
 		);
 
 		if($config->get_bool("ext_imagehistory_logdb_source")) log_debug("image_history", "SourceHistory: [{$old_source}] -> [{$new_source}]", false, array("image_id" => $image->id));
@@ -255,12 +255,13 @@ class ImageHistory extends Extension {
 
 	/** get history_id functions **/
 	public function get_history_id($image_id, $create=FALSE) {
-		if(is_null($this->history_id) || $create){
+		if(!in_array($image_id, $this->history_ids) || $create) {
 			//Multiple things can be set/changed at once on post pages
 			//To make things less messy on the image history page, these are grouped by a history id.
 			$this->generate_history_id($image_id);
 		}
-		return $this->history_id;
+
+		return $this->history_ids[$image_id]['id'];
 	}
 
 	private function generate_history_id($image_id) {
@@ -272,8 +273,8 @@ class ImageHistory extends Extension {
 			array($image_id, $user->id, $_SERVER['REMOTE_ADDR'])
 		);
 
-		$this->history_id = $database->get_last_insert_id('ext_imagehistory_id_seq');
-		$this->events     = 0;
+		$historyID = $database->get_last_insert_id('ext_imagehistory_id_seq');
+		$this->history_ids[$image_id] = ['id' => $historyID, 'events' => 0];
 	}
 
 	/** get_history functions **/
@@ -374,4 +375,3 @@ class ImageHistory extends Extension {
 		}
 	}
 }
-
