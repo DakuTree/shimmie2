@@ -224,7 +224,7 @@ class TagList extends Extension {
 
 		$tags_min = $this->get_tags_min();
 		$starts_with = $this->get_starts_with();
-		
+
 		// check if we have a cached version
 		$cache_key = data_path("cache/tag_cloud-" . md5("tc" . $tags_min . $starts_with) . ".html");
 		if(file_exists($cache_key)) {return file_get_contents($cache_key);}
@@ -264,7 +264,7 @@ class TagList extends Extension {
 
 		$tags_min = $this->get_tags_min();
 		$starts_with = $this->get_starts_with();
-		
+
 		// check if we have a cached version
 		$cache_key = data_path("cache/tag_alpha-" . md5("ta" . $tags_min . $starts_with) . ".html");
 		if(file_exists($cache_key)) {return file_get_contents($cache_key);}
@@ -279,28 +279,28 @@ class TagList extends Extension {
 
 		$html = "";
 		if($config->get_bool("tag_list_pages")) $html .= $this->build_az();
-		
+
 		/*
 		  strtolower() vs. mb_strtolower()
 		  ( See http://www.php.net/manual/en/function.mb-strtolower.php for more info )
-		 
+
 		  PHP5's strtolower function does not support Unicode (UTF-8) properly, so
 		  you have to use another function, mb_strtolower, to handle UTF-8 strings.
-		  
+
 		  What's worse is that mb_strtolower is horribly SLOW.
-		  
+
 		  It would probably be better to have a config option for the Tag List that
 		  would allow you to specify if there are UTF-8 tags.
-		  
-		*/ 
+
+		*/
 		mb_internal_encoding('UTF-8');
-		
+
 		$lastLetter = "";
 		foreach($tag_data as $row) {
 			$tag = $row['tag'];
 			if($lastLetter != mb_strtolower(substr($tag, 0, count($starts_with)+1))) {
 				$lastLetter = mb_strtolower(substr($tag, 0, count($starts_with)+1));
-				$h_lastLetter = html_escape($lastLetter); 
+				$h_lastLetter = html_escape($lastLetter);
 				$html .= "<p>$h_lastLetter<br>";
 			}
 			$link = $this->tag_link($tag);
@@ -321,11 +321,11 @@ class TagList extends Extension {
 		global $database;
 
 		$tags_min = $this->get_tags_min();
-		
+
 		// Make sure that the value of $tags_min is at least 1.
 		// Otherwise the database will complain if you try to do: LOG(0)
 		if ($tags_min < 1){ $tags_min = 1; }
-		
+
 		// check if we have a cached version
 		$cache_key = data_path("cache/tag_popul-" . md5("tp" . $tags_min) . ".html");
 		if(file_exists($cache_key)) {return file_get_contents($cache_key);}
@@ -524,21 +524,36 @@ class TagList extends Extension {
 			$tag_id_list = join(', ', $tag_id_array);
 
 			if($tags_ok) {
-				$query = "
-					SELECT t2.tag AS tag, COUNT(it2.image_id) AS calc_count
-					FROM
-						image_tags AS it1,
-						image_tags AS it2,
-						tags AS t1,
-						tags AS t2
-					WHERE
-						t1.id IN($tag_id_list)
-						AND it1.image_id=it2.image_id
-						AND it1.tag_id = t1.id
-						AND it2.tag_id = t2.id
-					GROUP BY t2.tag
-					ORDER BY calc_count
-					DESC LIMIT :limit
+				// $query = "
+				// 	SELECT t2.tag AS tag, COUNT(it2.image_id) AS calc_count
+				// 	FROM
+				// 		image_tags AS it1,
+				// 		image_tags AS it2,
+				// 		tags AS t1,
+				// 		tags AS t2
+				// 	WHERE
+				// 		t1.id IN($tag_id_list)
+				// 		AND t1.count < 2500 # NOTE: SPEEDHACK???
+				// 		AND it1.image_id=it2.image_id
+				// 		AND it1.tag_id = t1.id
+				// 		AND it2.tag_id = t2.id
+				// 	GROUP BY t2.tag
+				// 	ORDER BY calc_count
+				// 	DESC LIMIT :limit
+				// ";
+                $query = "
+                SELECT t.tag, A.calc_count AS calc_count
+                FROM tags t INNER JOIN (
+                    SELECT it2.tag_id, COUNT(it2.image_id) AS calc_count
+                    FROM image_tags AS it1 -- Got other images with the same tags
+                        INNER JOIN image_tags AS it2 ON it1.image_id=it2.image_id
+                        -- And filter out unwanted tags
+                            AND it2.tag_id NOT IN ($tag_id_list)
+                    WHERE it1.tag_id IN ($tag_id_list)
+                    GROUP BY it2.tag_id
+                ) A ON A.tag_id = t.id
+                ORDER BY A.calc_count
+                DESC LIMIT :limit
 				";
 				$args = array("limit"=>$config->get_int('tag_list_length'));
 
@@ -553,4 +568,3 @@ class TagList extends Extension {
 	}
 // }}}
 }
-
