@@ -15,7 +15,7 @@
 class MassTagger extends Extension {
 	public function onPostListBuilding(PostListBuildingEvent $event) {
 		global $config, $page, $user;
-		
+
 		if($user->is_admin()) {
 			$this->theme->display_mass_tagger( $page, $event, $config );
 		}
@@ -52,10 +52,10 @@ class MassTagger extends Extension {
 					if (!empty($neg_tag_array)) {
 						$img_tags = array_merge($pos_tag_array, $image->get_tag_array());
 						$img_tags = array_diff($img_tags, $neg_tag_array);
-						$image->set_tags($img_tags);
+						$image->set_tags(array_unique($img_tags));
 					}
 					else {
-						$image->set_tags(array_merge($tags, $image->get_tag_array()));
+						$image->set_tags(array_unique(array_merge($tags, $image->get_tag_array())));
 					}
 				}
 			}
@@ -66,4 +66,3 @@ class MassTagger extends Extension {
 		}
 	}
 }
-
